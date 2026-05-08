@@ -1,0 +1,1 @@
+ALTER TABLE vid DROP CONSTRAINT vid_uploaded_by_key;

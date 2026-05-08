@@ -1,0 +1,13 @@
+spring:
+  application:
+  name: streaming-api
+  profiles:
+    active: dev
+
+platform:
+  billing:
+    api-key: "dummy api key"
+    trail-period-days: 30
+  cdn:
+    base-url: "https://cdn.streaming-platform.com"
+    private-streaming-enabled: true

@@ -1,0 +1,61 @@
+Platform:
+  billing:
+    trail-period-days: 7
+
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/streaming_api_db
+    username: devuser
+    password: devsecret
+
+  threads:
+    virtual:
+      enabled: true
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+  cache:
+    type: caffeine
+    cache-names:
+      - privilege
+      - watch_id # is catching the watch id along with the latest segment when user plays a vid(Map<vidId, LatestSegment>)
+      - vid_id # is catching vid_id and vid_location as the key (Map<vidLocation, UUID vidId>)
+    caffeine:
+      spec: expireAfterWrite=60m
+
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: 77cd646bc2c27c
+    password: ccecb395e9de16
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+
+
+
+jwt:
+  secret-key: "wM7QEMi5ljlugyydNZrHi2fp4Y6mZ9Ivm4efYDqNtUk="
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+
+# will add this when we start having microservice sys
+  #metrics:
+   # tags:
+      # application: some-service-name

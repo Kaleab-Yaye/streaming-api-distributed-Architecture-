@@ -1,0 +1,9 @@
+FROM  amitkma/python-ffmpeg:3.12-slim
+WORKDIR /encode
+RUN pip install --no-cache-dir requests
+COPY ./encoder_scripts/encode_worker.py encode_worker.py
+COPY ./encoder_scripts/make_request.py  make_request.py
+COPY ./encoder_scripts/raw_commands.py  raw_commands.py
+ENV PYTHONUNBUFFERED=1
+
+ENTRYPOINT ["python", "encode_worker.py"]

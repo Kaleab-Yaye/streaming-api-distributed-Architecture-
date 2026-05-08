@@ -1,0 +1,3 @@
+ALTER TABLE vid ALTER COLUMN vid_stat set DEFAULT 'UPLOADREQ';
+
+

@@ -1,0 +1,16 @@
+2026-04-17 07:02:34.305 UTC [1] LOG:  starting PostgreSQL 15.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+2026-04-17 07:02:34.307 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-04-17 07:02:34.307 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-04-17 07:02:34.317 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-04-17 07:02:34.328 UTC [30] LOG:  database system was interrupted; last known up at 2026-04-16 10:59:09 UTC
+2026-04-17 07:02:35.455 UTC [30] LOG:  database system was not properly shut down; automatic recovery in progress
+2026-04-17 07:02:35.477 UTC [30] LOG:  redo starts at 0/1D6B090
+2026-04-17 07:02:35.477 UTC [30] LOG:  invalid record length at 0/1D6B178: wanted 24, got 0
+2026-04-17 07:02:35.477 UTC [30] LOG:  redo done at 0/1D6B140 system usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s
+2026-04-17 07:02:35.491 UTC [28] LOG:  checkpoint starting: end-of-recovery immediate wait
+2026-04-17 07:02:35.516 UTC [28] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.008 s, sync=0.003 s, total=0.032 s; sync files=2, longest=0.002 s, average=0.002 s; distance=0 kB, estimate=0 kB
+2026-04-17 07:02:35.538 UTC [1] LOG:  database system is ready to accept connections
+2026-04-17 07:07:35.656 UTC [28] LOG:  checkpoint starting: time
+2026-04-17 07:07:36.086 UTC [28] LOG:  checkpoint complete: wrote 5 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.405 s, sync=0.008 s, total=0.431 s; sync files=5, longest=0.005 s, average=0.002 s; distance=18 kB, estimate=18 kB
+2026-04-17 07:17:35.112 UTC [28] LOG:  checkpoint starting: time
+2026-04-17 07:17:35.734 UTC [28] LOG:  checkpoint complete: wrote 5 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.494 s, sync=0.055 s, total=0.623 s; sync files=5, longest=0.051 s, average=0.011 s; distance=18 kB, estimate=18 kB

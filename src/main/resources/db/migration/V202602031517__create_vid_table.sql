@@ -1,0 +1,4 @@
+CREATE TABLE vid(
+    name VARCHAR(255) NOT NULL,
+    id BIGSERIAL PRIMARY KEY
+);

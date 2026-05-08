@@ -1,0 +1,3 @@
+ALTER TABLE watches DROP COLUMN last_segment;
+ALTER TABLE watches ADD COLUMN current_frame DECIMAL;
+ALTER TABLE vid ADD COLUMN length DECIMAL

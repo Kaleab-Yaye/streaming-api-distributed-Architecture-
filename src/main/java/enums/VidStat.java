@@ -1,0 +1,14 @@
+package enums;
+
+public enum VidStat {
+  UPLOADED,
+  APPROVED,
+  ENCODED,
+  ENCODERR,
+  MODEREGCT,
+  UPLOADREQ,
+  ENCODING,
+  REMOVED,
+  NOT_VID,
+  BROKEN_VID
+}

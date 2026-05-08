@@ -1,0 +1,25 @@
+2026-04-16 09:31:37.459 UTC [1] LOG:  starting PostgreSQL 15.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+2026-04-16 09:31:37.460 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-04-16 09:31:37.460 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-04-16 09:31:37.470 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-04-16 09:31:37.483 UTC [30] LOG:  database system was interrupted; last known up at 2026-04-15 11:26:25 UTC
+2026-04-16 09:31:39.164 UTC [30] LOG:  database system was not properly shut down; automatic recovery in progress
+2026-04-16 09:31:39.172 UTC [30] LOG:  redo starts at 0/1D520F8
+2026-04-16 09:31:39.172 UTC [30] LOG:  invalid record length at 0/1D52130: wanted 24, got 0
+2026-04-16 09:31:39.172 UTC [30] LOG:  redo done at 0/1D520F8 system usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s
+2026-04-16 09:31:39.181 UTC [28] LOG:  checkpoint starting: end-of-recovery immediate wait
+2026-04-16 09:31:39.208 UTC [28] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.010 s, sync=0.004 s, total=0.031 s; sync files=2, longest=0.002 s, average=0.002 s; distance=0 kB, estimate=0 kB
+2026-04-16 09:31:39.228 UTC [1] LOG:  database system is ready to accept connections
+2026-04-16 09:36:43.487 UTC [28] LOG:  checkpoint starting: time
+2026-04-16 09:36:43.923 UTC [28] LOG:  checkpoint complete: wrote 5 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.410 s, sync=0.009 s, total=0.437 s; sync files=5, longest=0.005 s, average=0.002 s; distance=13 kB, estimate=13 kB
+2026-04-16 09:52:09.041 UTC [28] LOG:  checkpoint starting: time
+2026-04-16 09:52:10.507 UTC [28] LOG:  checkpoint complete: wrote 15 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=1.432 s, sync=0.013 s, total=1.468 s; sync files=14, longest=0.005 s, average=0.001 s; distance=55 kB, estimate=55 kB
+2026-04-16 10:52:24.464 UTC [41] ERROR:  syntax error at or near "users" at character 8
+2026-04-16 10:52:24.464 UTC [41] STATEMENT:  DELETE users WHERE email = 'kaleabtesfaye222@gmail.com';
+2026-04-16 10:53:58.796 UTC [28] LOG:  checkpoint starting: time
+2026-04-16 10:53:58.976 UTC [28] LOG:  checkpoint complete: wrote 2 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.132 s, sync=0.007 s, total=0.183 s; sync files=2, longest=0.006 s, average=0.004 s; distance=4 kB, estimate=50 kB
+2026-04-16 10:54:39.349 UTC [41] ERROR:  update or delete on table "users" violates foreign key constraint "vid_uploaded_by_fkey" on table "vid"
+2026-04-16 10:54:39.349 UTC [41] DETAIL:  Key (id)=(8a28c6b9-402c-413b-95cd-fd893b23ce30) is still referenced from table "vid".
+2026-04-16 10:54:39.349 UTC [41] STATEMENT:  DELETE FROM  users WHERE email = 'kaleabtesfaye222@gmail.com';
+2026-04-16 10:59:07.751 UTC [28] LOG:  checkpoint starting: time
+2026-04-16 10:59:09.012 UTC [28] LOG:  checkpoint complete: wrote 13 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=1.223 s, sync=0.016 s, total=1.262 s; sync files=13, longest=0.007 s, average=0.002 s; distance=24 kB, estimate=48 kB
