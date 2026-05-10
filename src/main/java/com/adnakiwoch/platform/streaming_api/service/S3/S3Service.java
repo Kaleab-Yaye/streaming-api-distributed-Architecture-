@@ -27,16 +27,20 @@ public class S3Service {
   }
 
   @Async
-  public void uploadFile(String key, String bucket, String file_path) {
-    s3Client.putObject(
-        PutObjectRequest.builder().bucket(bucket).key(key).build(), Path.of(file_path));
-    Optional<Vid> vidOptional = vidRepo.findById(UUID.fromString(key));
-    log.info("file uploaded to s3");
+  public void uploadFile(UUID key, String bucket, String file_path) {
+    Optional<Vid> vidOptional = vidRepo.findById(key);
     Vid vid =
         vidOptional.orElseThrow(
             () ->
                 new ResourceNotFoundException(
                     "S3 service uploader can't find a vid with the id: " + key));
+
+    s3Client.putObject(
+        PutObjectRequest.builder().bucket(bucket).key(vid.getUploadLocation()).build(),
+        Path.of(file_path));
+
+    log.info("file uploaded to s3");
+
     vid.setVidStat(VidStat.UPLOADED_NOT_DELETED);
     try {
       if (Files.deleteIfExists(Path.of(file_path))) {

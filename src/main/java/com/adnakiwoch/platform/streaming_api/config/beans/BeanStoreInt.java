@@ -1,7 +1,6 @@
 package com.adnakiwoch.platform.streaming_api.config.beans;
 
 import java.net.URI;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -12,14 +11,14 @@ import tools.jackson.databind.ObjectMapper;
 
 @Configuration
 public class BeanStoreInt {
-  @Value("${s3.MINIO_URI}")
-  private String s3_uri;
 
-  @Value("${s3.MINIO_ROOT_USER}")
-  private String s3AccessKey;
+  private final String s3_uri = System.getenv("S3_URI");
+  ;
 
-  @Value("${s3.MINIO_ROOT_PASSWORD}")
-  private String s3SecretAccessKey;
+  private final String s3AccessKey = System.getenv("S3_ACCESS_KEY");
+
+  private final String s3SecretAccessKey = System.getenv("S3_SECRET_ACCESS_KEY");
+  ;
 
   @Bean
   public ObjectMapper retObjectMapper() {

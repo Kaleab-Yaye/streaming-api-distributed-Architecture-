@@ -139,9 +139,9 @@ public class TusdService {
           HTTPTusdResponseBody bodyRaw = new HTTPTusdResponseBody("upload created start");
           String body = objectMapper.writeValueAsString(bodyRaw);
 
-          String filePath = "./" + System.getenv("TEMP_UPLOAD") + "/" + vidLocation;
+          String filePath = System.getenv("TEMP_UPLOAD") + "/" + vidLocation;
 
-          s3Service.uploadFile(vidLocation, "raw-upload", filePath);
+          s3Service.uploadFile(vid_id, "raw-upload", filePath);
 
           return ResponseEntity.status(HttpStatus.OK)
               .body(new TusdResponse(new HTTPTusdResponse(HttpStatus.OK.value(), body), false));
