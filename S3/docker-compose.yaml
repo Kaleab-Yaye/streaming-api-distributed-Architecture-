@@ -1,0 +1,26 @@
+services:
+
+  perm-volume-fix-init:
+    image: busybox
+    container_name: fix_init
+    user: "0:0"
+    volumes:
+      - s3_store:/s3_store
+    command: sh -c "chown -R 1000:1000 /s3_store && chmod -R 775 /s3_store"
+    restart: "no"
+
+  minio:
+    container_name: S3_Store
+    image: quay.io/minio/minio:latest
+    command:  server /data --console-address ":9001"
+    user: "1000:1000"
+    environment:
+      MINIO_ROOT_USER: ktadmin
+      MINIO_ROOT_PASSWORD: 12345678
+    volumes:
+      - s3_store:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+volumes:
+  s3_store:

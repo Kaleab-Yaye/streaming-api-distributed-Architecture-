@@ -7,6 +7,7 @@ import com.adnakiwoch.platform.streaming_api.dto.response.hooks.tusd.HTTPTusdRes
 import com.adnakiwoch.platform.streaming_api.dto.response.hooks.tusd.TusdResponse;
 import com.adnakiwoch.platform.streaming_api.exception.resource.ResourceNotFoundException;
 import com.adnakiwoch.platform.streaming_api.repository.VidRepo;
+import com.adnakiwoch.platform.streaming_api.service.S3.S3Service;
 import com.adnakiwoch.platform.streaming_api.service.security.FindUserDetails;
 import com.adnakiwoch.platform.streaming_api.service.security.JwtService;
 import enums.VidStat;
@@ -28,16 +29,19 @@ public class TusdService {
   private final JwtService jwtService;
   private final FindUserDetails findUserDetails;
   private final VidRepo vidRepo;
+  private final S3Service s3Service;
 
   public TusdService(
       ObjectMapper objectMapper,
       JwtService jwtService,
       FindUserDetails findUserDetails,
-      VidRepo vidRepo) {
+      VidRepo vidRepo,
+      S3Service s3Service) {
     this.objectMapper = objectMapper;
     this.jwtService = jwtService;
     this.findUserDetails = findUserDetails;
     this.vidRepo = vidRepo;
+    this.s3Service = s3Service;
   }
 
   public ResponseEntity<TusdResponse> uploadRequest(TusdHook tusdHook) {
@@ -128,12 +132,16 @@ public class TusdService {
               vidOptional.orElseThrow(
                   () -> new ResourceNotFoundException("vid with id:" + vid_id.toString()));
           vid.setUploadLocation(vidLocation);
-          vid.setVidStat(VidStat.UPLOADED);
+          vid.setVidStat(VidStat.TUS_UPLOAD_COMPLETE);
           vid.setPresent(true);
           vidRepo.save(vid);
 
           HTTPTusdResponseBody bodyRaw = new HTTPTusdResponseBody("upload created start");
           String body = objectMapper.writeValueAsString(bodyRaw);
+
+          String filePath = "./" + System.getenv("TEMP_UPLOAD") + "/" + vidLocation;
+
+          s3Service.uploadFile(vid_id.toString(), "raw-upload", filePath);
 
           return ResponseEntity.status(HttpStatus.OK)
               .body(new TusdResponse(new HTTPTusdResponse(HttpStatus.OK.value(), body), false));

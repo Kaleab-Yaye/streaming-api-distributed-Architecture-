@@ -3,7 +3,7 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-./build.ps1
+Docker/legacy/build.ps1
 
 ### STS ###
 .apt_generated

@@ -1,33 +1,43 @@
-
 services:
+
+  perm-volume-fix-init:
+      image: busybox
+      container_name: fix_init
+      user: "0:0"
+      volumes:
+        - s3_store:/s3_store
+      command: sh -c "chown -R 1000:1000 /s3_store && chmod -R 775 /s3_store"
+      restart: "no"
+
+  minio:
+      container_name: S3_Store
+      image: quay.io/minio/minio:latest
+      command: server /data --console-address ":9001"
+      user: "1000:1000"
+      environment:
+        MINIO_ROOT_USER: ktadmin
+        MINIO_ROOT_PASSWORD: 12345678
+      volumes:
+        - s3_store:/data
+      ports:
+        - "9000:9000"
+        - "9001:9001"
 
   api:
     build: .
     image: api
-    container_name: stream
+    container_name: stream_dist
     ports:
       - "8080:8080"
     depends_on:
       - postgres
-
-
-  encoder:
-    build:
-      context: .
-      dockerfile: Dockerfile.encode
-    container_name: encoder
-    image: encoder
-    depends_on:
-      - api
-      - nginx
-      - postgres
-    environment:
-      - RAW_VID=/data
-      - PROC_ED=/encoded
     volumes:
-      - temp_upload:/data
-      - vid_store:/encoded
-      
+      - temp_upload:/app/temp_upload
+    environment:
+      - TEMP_UPLOAD=/temp_upload
+
+
+
   postgres:
     image: postgres:15-alpine
     environment:
@@ -53,21 +63,22 @@ services:
       - "-c"
       - "log_rotation_size=10MB"
 
+
   nginx:
     image: nginx:alpine
-    container_name: streaming_proxy
+    container_name: streaming_proxy_dist
     ports:
       - "80:80"
     depends_on:
       - api
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - vid_store:/store/videos/encoded/
       - test_html:/store/html
+
 
   tusd:
     image: tusproject/tusd:sha-262f655
-    container_name: tus-serv
+    container_name: tus-serv-dist_dist
     ports:
       - "1080:1080"
     volumes:
@@ -78,13 +89,11 @@ services:
       -upload-dir=/srv/tusd-data
       -hooks-http=http://api:8080/api/hooks/tusd/upload
       -hooks-http-retry=3
-      -
     depends_on:
       - api
 
-
 volumes:
   pgdata:
-  vid_store:
   test_html:
   temp_upload:
+  s3_store:

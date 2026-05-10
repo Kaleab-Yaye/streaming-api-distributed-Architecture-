@@ -43,6 +43,15 @@ spring:
 jwt:
   secret-key: "wM7QEMi5ljlugyydNZrHi2fp4Y6mZ9Ivm4efYDqNtUk="
 
+s3:
+  MINIO_ROOT_USER: "ktadmin"
+  MINIO_ROOT_PASSWORD: "12345678"
+  MINIO_URI: "http://minio:9000" #this for the local test the ip will beed to be here
+
+
+
+
+
 management:
   endpoints:
     web:

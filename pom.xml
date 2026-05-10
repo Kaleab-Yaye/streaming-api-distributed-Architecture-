@@ -201,8 +201,14 @@
         </dependency>
         <!-- spring email -->
 
-
-
+        <!-- dependacy for s3 storage -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <version>2.44.4</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- dependacy for s3 storage -->
 
 
 	</dependencies>

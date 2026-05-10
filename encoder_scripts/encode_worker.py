@@ -11,9 +11,6 @@ import shutil
 class Const:
  time_to_sleep = 30
 
-
-
-
 def extract_env()->tuple[str, str]:
   
   return os.getenv("RAW_VID"), os.getenv("PROC_ED")
