@@ -24,3 +24,43 @@
 	created_date TIMESTAMPTZ DEFAULT NOW(),
 	subscription_id UUID UNIQUE
 	)
+2026-05-10 12:51:10.920 UTC [57] LOG:  checkpoint starting: time
+2026-05-10 12:51:23.852 UTC [57] LOG:  checkpoint complete: wrote 110 buffers (0.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=12.734 s, sync=0.114 s, total=12.933 s; sync files=73, longest=0.044 s, average=0.002 s; distance=474 kB, estimate=474 kB
+2026-05-10 12:54:10.444 UTC [98] ERROR:  function uuid_generate_v4() does not exist at character 51
+2026-05-10 12:54:10.444 UTC [98] HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+2026-05-10 12:54:10.444 UTC [98] STATEMENT:  CREATE TABLE users (
+	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+	name VARCHAR(255) NOT NULL UNIQUE,
+	email VARCHAR(255) NOT NULL UNIQUE,
+	created_date TIMESTAMPTZ DEFAULT NOW(),
+	subscription_id UUID UNIQUE
+	)
+2026-05-10 12:56:28.647 UTC [57] LOG:  checkpoint starting: time
+2026-05-10 12:56:31.034 UTC [57] LOG:  checkpoint complete: wrote 23 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=2.221 s, sync=0.070 s, total=2.388 s; sync files=17, longest=0.037 s, average=0.005 s; distance=91 kB, estimate=435 kB
+2026-05-10 13:01:48.154 UTC [57] LOG:  checkpoint starting: time
+2026-05-10 13:02:02.157 UTC [57] LOG:  checkpoint complete: wrote 118 buffers (0.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=13.878 s, sync=0.112 s, total=14.004 s; sync files=102, longest=0.042 s, average=0.002 s; distance=656 kB, estimate=656 kB
+2026-05-10 13:12:26.638 UTC [57] LOG:  checkpoint starting: time
+2026-05-10 13:12:27.169 UTC [57] LOG:  checkpoint complete: wrote 5 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.504 s, sync=0.005 s, total=0.532 s; sync files=2, longest=0.004 s, average=0.003 s; distance=7 kB, estimate=591 kB
+2026-05-10 13:23:07.038 UTC [57] LOG:  checkpoint starting: time
+2026-05-10 13:23:09.302 UTC [57] LOG:  checkpoint complete: wrote 22 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=2.187 s, sync=0.043 s, total=2.263 s; sync files=16, longest=0.013 s, average=0.003 s; distance=14 kB, estimate=533 kB
+2026-05-10 13:33:48.891 UTC [57] LOG:  checkpoint starting: time
+2026-05-10 13:33:49.766 UTC [57] LOG:  checkpoint complete: wrote 9 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.842 s, sync=0.009 s, total=0.875 s; sync files=7, longest=0.004 s, average=0.002 s; distance=9 kB, estimate=481 kB
+2026-05-10 13:34:44.369 UTC [119] ERROR:  relation "vids" does not exist at character 15
+2026-05-10 13:34:44.369 UTC [119] STATEMENT:  select * from vids
+	;
+2026-05-10 13:39:09.840 UTC [57] LOG:  checkpoint starting: time
+2026-05-10 13:39:10.297 UTC [57] LOG:  checkpoint complete: wrote 5 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.422 s, sync=0.014 s, total=0.458 s; sync files=5, longest=0.009 s, average=0.003 s; distance=2 kB, estimate=433 kB
+2026-05-10 13:41:07.250 UTC [119] ERROR:  syntax error at or near "dt" at character 1
+2026-05-10 13:41:07.250 UTC [119] STATEMENT:  dt vids;
+2026-05-10 13:41:10.525 UTC [119] ERROR:  syntax error at or near "d" at character 1
+2026-05-10 13:41:10.525 UTC [119] STATEMENT:  d vids;
+2026-05-10 13:41:14.264 UTC [119] ERROR:  syntax error at or near "-" at character 1
+2026-05-10 13:41:14.264 UTC [119] STATEMENT:  -d vids;
+2026-05-10 13:41:18.825 UTC [119] ERROR:  syntax error at or near "tb" at character 1
+2026-05-10 13:41:18.825 UTC [119] STATEMENT:  tb vids;
+2026-05-10 13:41:24.124 UTC [119] ERROR:  syntax error at or near "vids" at character 1
+2026-05-10 13:41:24.124 UTC [119] STATEMENT:  vids;
+2026-05-10 13:44:30.268 UTC [57] LOG:  checkpoint starting: time
+2026-05-10 13:44:31.209 UTC [57] LOG:  checkpoint complete: wrote 9 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.913 s, sync=0.009 s, total=0.942 s; sync files=6, longest=0.006 s, average=0.002 s; distance=7 kB, estimate=390 kB
+2026-05-10 13:49:51.285 UTC [57] LOG:  checkpoint starting: time
+2026-05-10 13:49:51.729 UTC [57] LOG:  checkpoint complete: wrote 5 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.419 s, sync=0.010 s, total=0.445 s; sync files=5, longest=0.006 s, average=0.002 s; distance=3 kB, estimate=352 kB
