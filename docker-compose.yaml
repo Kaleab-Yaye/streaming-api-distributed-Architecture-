@@ -34,8 +34,29 @@ services:
     volumes:
       - temp_upload:/app/temp_upload
     environment:
-      - TEMP_UPLOAD=/temp_upload
+      - TEMP_UPLOAD=./temp_upload
+      - S3_URI=http://minio:9000
+      - S3_ACCESS_KEY=ktadmin
+      - S3_SECRET_ACCESS_KEY=12345678
 
+
+  encoder:
+      build:
+        context: .
+        dockerfile: Dockerfile.encode
+      container_name: encoder-dist
+      image: encoder
+      depends_on:
+        - api
+        - nginx
+        - postgres
+      environment:
+        - RAW_VID=/data
+        - PROC_ED=/encoded
+        - S3_URI=http://minio:9000
+        - S3_ACCESS_KEY=ktadmin
+        - S3_SECRET_ACCESS_KEY=12345678
+        - CENTERAL_CERV=http://api
 
 
   postgres:

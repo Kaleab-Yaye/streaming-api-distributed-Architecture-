@@ -25,6 +25,25 @@ services:
       - S3_SECRET_ACCESS_KEY=12345678
     user: "1000:1000"
 
+  encoder:
+    build:
+      context: .
+      dockerfile: Dockerfile.encode
+    container_name: encoder-dist
+    image: encoder
+    depends_on:
+      - api
+      - nginx
+      - postgres
+    environment:
+      - RAW_VID=/data
+      - PROC_ED=/encoded
+      - S3_URI=http://minio:9000
+      - S3_ACCESS_KEY=ktadmin
+      - S3_SECRET_ACCESS_KEY=12345678
+      - CENTERAL_CERV=http://api
+
+
   postgres:
     image: postgres:15-alpine
     container_name: db_dist

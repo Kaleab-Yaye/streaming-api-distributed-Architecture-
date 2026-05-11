@@ -51,6 +51,7 @@ public class BasicUserController {
 
   @PostMapping("/sign_in")
   public ResponseEntity<AuthResponse> logIn(@Validated @RequestBody AuthRequest authRequest) {
+    log.info(" log in hit with the info {}", authRequest);
     counterForLogInAttempt.increment();
     return ResponseEntity.status(HttpStatus.ACCEPTED)
         .body(authService.login(authRequest.email(), authRequest.password()));

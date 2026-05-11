@@ -1,9 +1,15 @@
 import requests 
+import os
 
 class BaseURL:
-    get_new_job = "http://api:8080/api/hooks/encode/fetch/new"
-    issue = "http://api:8080/api/hooks/encode/issue"
-    done = "http://api:8080/api/hooks/encode/done"
+    # this whole shit needs to be made an Enviroment variable than a static one
+    
+   base_hook = os.getenv("CENTERAL_CERV")
+   get_new_job = base_hook + ":8080/api/hooks/encode/fetch/new"
+   issue = base_hook + ":8080/api/hooks/encode/issue"
+   done = base_hook + ":8080/api/hooks/encode/done"
+
+    
 
 class NewJob:
     def __init__(self, vid_id:str , vid_location:str, status_code:int ):
@@ -49,4 +55,3 @@ def successJob(jobDone: JobDone)->int:
     response = requests.post(BaseURL.done, json=EncodeDoneRequest )
     return response.status_code
 
-what ist eh reaosn that

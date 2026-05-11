@@ -28,7 +28,8 @@ public class EncoderService {
       return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
     Vid vid = vidOptional.get();
-    vid.setVidStat(VidStat.ENCODING);
+
+    // vid.setVidStat(VidStat.ENCODING);
     vidRepo.save(vid);
     return ResponseEntity.ok().body(new EncodeResponse(vid.getUploadLocation(), vid.getId()));
   }
