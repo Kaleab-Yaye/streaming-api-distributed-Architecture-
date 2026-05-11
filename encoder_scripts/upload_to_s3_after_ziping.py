@@ -5,12 +5,12 @@ import os
 s3_clinet = S3ClinetHandler()
 
 def zip_hls(source_path:str, destination:str)->bool:
-    with zipfile.ZipFile(destination, w , compression=zipfile.ZIP_STORED) as the_zip:
+    with zipfile.ZipFile(destination, 'w' , compression=zipfile.ZIP_STORED) as the_zip:
         try:
             for root, dirs, files in os.walk(source_path):
                 for file_name in files:
                     absolute_path =  os.path.join(root, file_name)
-                    path_inside_zip_file = os.path.realpath(absolute_path, source_path)
+                    path_inside_zip_file = os.path.relpath(absolute_path, source_path)
                     the_zip.write(absolute_path, path_inside_zip_file)
         except Exception as ex:
             print(f"ziping the file in the location {source_path} was not possible becouse of the exception  {ex}")

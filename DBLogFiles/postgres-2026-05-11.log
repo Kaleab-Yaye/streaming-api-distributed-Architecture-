@@ -122,3 +122,101 @@
 2026-05-11 19:29:34.776 UTC [28] LOG:  checkpoint starting: shutdown immediate
 2026-05-11 19:29:34.790 UTC [28] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.001 s, total=0.018 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=6 kB
 2026-05-11 19:29:34.808 UTC [1] LOG:  database system is shut down
+2026-05-11 19:30:45.002 UTC [1] LOG:  starting PostgreSQL 15.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+2026-05-11 19:30:45.003 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-05-11 19:30:45.003 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-05-11 19:30:45.012 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-05-11 19:30:45.027 UTC [30] LOG:  database system was shut down at 2026-05-11 19:29:34 UTC
+2026-05-11 19:30:45.045 UTC [1] LOG:  database system is ready to accept connections
+2026-05-11 19:35:46.744 UTC [28] LOG:  checkpoint starting: time
+2026-05-11 19:35:46.768 UTC [28] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.007 s, sync=0.003 s, total=0.025 s; sync files=2, longest=0.002 s, average=0.002 s; distance=0 kB, estimate=0 kB
+2026-05-11 19:40:46.822 UTC [28] LOG:  checkpoint starting: time
+2026-05-11 19:40:47.257 UTC [28] LOG:  checkpoint complete: wrote 5 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.409 s, sync=0.007 s, total=0.435 s; sync files=5, longest=0.002 s, average=0.002 s; distance=5 kB, estimate=5 kB
+2026-05-11 19:41:47.819 UTC [58] ERROR:  syntax error at or near "vid_stat" at character 17
+2026-05-11 19:41:47.819 UTC [58] STATEMENT:  UPDATE vid SETE vid_stat ='UPLOADED' where vid_stat = 'NOT_VID'
+	;
+2026-05-11 19:45:47.030 UTC [28] LOG:  checkpoint starting: time
+2026-05-11 19:45:47.370 UTC [28] LOG:  checkpoint complete: wrote 4 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.308 s, sync=0.012 s, total=0.340 s; sync files=4, longest=0.008 s, average=0.003 s; distance=7 kB, estimate=7 kB
+2026-05-11 20:06:01.291 UTC [28] LOG:  checkpoint starting: time
+2026-05-11 20:06:01.643 UTC [28] LOG:  checkpoint complete: wrote 4 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.324 s, sync=0.006 s, total=0.352 s; sync files=4, longest=0.004 s, average=0.002 s; distance=8 kB, estimate=8 kB
+2026-05-11 20:23:12.424 UTC [1] LOG:  received fast shutdown request
+2026-05-11 20:23:12.429 UTC [1] LOG:  aborting any active transactions
+2026-05-11 20:23:12.436 UTC [58] FATAL:  terminating connection due to administrator command
+2026-05-11 20:23:12.442 UTC [1] LOG:  background worker "logical replication launcher" (PID 33) exited with exit code 1
+2026-05-11 20:23:12.450 UTC [28] LOG:  shutting down
+2026-05-11 20:23:12.455 UTC [28] LOG:  checkpoint starting: shutdown immediate
+2026-05-11 20:23:12.487 UTC [28] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.016 s, sync=0.001 s, total=0.037 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=7 kB
+2026-05-11 20:23:12.508 UTC [1] LOG:  database system is shut down
+2026-05-11 20:23:19.723 UTC [1] LOG:  starting PostgreSQL 15.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+2026-05-11 20:23:19.724 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-05-11 20:23:19.724 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-05-11 20:23:19.732 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-05-11 20:23:19.746 UTC [30] LOG:  database system was shut down at 2026-05-11 20:23:12 UTC
+2026-05-11 20:23:19.773 UTC [1] LOG:  database system is ready to accept connections
+2026-05-11 20:28:00.367 UTC [1] LOG:  received fast shutdown request
+2026-05-11 20:28:00.370 UTC [1] LOG:  aborting any active transactions
+2026-05-11 20:28:00.372 UTC [41] FATAL:  terminating connection due to administrator command
+2026-05-11 20:28:00.375 UTC [1] LOG:  background worker "logical replication launcher" (PID 33) exited with exit code 1
+2026-05-11 20:28:00.377 UTC [28] LOG:  shutting down
+2026-05-11 20:28:00.381 UTC [28] LOG:  checkpoint starting: shutdown immediate
+2026-05-11 20:28:00.407 UTC [28] LOG:  checkpoint complete: wrote 6 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.007 s, sync=0.007 s, total=0.030 s; sync files=5, longest=0.003 s, average=0.002 s; distance=8 kB, estimate=8 kB
+2026-05-11 20:28:00.421 UTC [1] LOG:  database system is shut down
+2026-05-11 20:28:20.806 UTC [1] LOG:  starting PostgreSQL 15.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+2026-05-11 20:28:20.806 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-05-11 20:28:20.806 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-05-11 20:28:20.815 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-05-11 20:28:20.831 UTC [30] LOG:  database system was shut down at 2026-05-11 20:28:00 UTC
+2026-05-11 20:28:20.853 UTC [1] LOG:  database system is ready to accept connections
+2026-05-11 20:33:22.110 UTC [28] LOG:  checkpoint starting: time
+2026-05-11 20:33:22.140 UTC [28] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.010 s, sync=0.003 s, total=0.030 s; sync files=2, longest=0.002 s, average=0.002 s; distance=0 kB, estimate=0 kB
+2026-05-11 20:44:27.930 UTC [1] LOG:  received fast shutdown request
+2026-05-11 20:44:27.935 UTC [1] LOG:  aborting any active transactions
+2026-05-11 20:44:27.946 UTC [1] LOG:  background worker "logical replication launcher" (PID 33) exited with exit code 1
+2026-05-11 20:44:27.947 UTC [28] LOG:  shutting down
+2026-05-11 20:44:27.951 UTC [28] LOG:  checkpoint starting: shutdown immediate
+2026-05-11 20:44:27.964 UTC [28] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.001 s, total=0.017 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=0 kB
+2026-05-11 20:44:27.987 UTC [1] LOG:  database system is shut down
+2026-05-11 20:44:51.945 UTC [1] LOG:  starting PostgreSQL 15.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+2026-05-11 20:44:51.947 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-05-11 20:44:51.947 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-05-11 20:44:51.957 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-05-11 20:44:51.973 UTC [31] LOG:  database system was shut down at 2026-05-11 20:44:27 UTC
+2026-05-11 20:44:51.998 UTC [1] LOG:  database system is ready to accept connections
+2026-05-11 20:47:50.420 UTC [1] LOG:  received fast shutdown request
+2026-05-11 20:47:50.424 UTC [1] LOG:  aborting any active transactions
+2026-05-11 20:47:50.433 UTC [1] LOG:  background worker "logical replication launcher" (PID 34) exited with exit code 1
+2026-05-11 20:47:50.435 UTC [29] LOG:  shutting down
+2026-05-11 20:47:50.439 UTC [29] LOG:  checkpoint starting: shutdown immediate
+2026-05-11 20:47:50.477 UTC [29] LOG:  checkpoint complete: wrote 6 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.014 s, sync=0.011 s, total=0.042 s; sync files=5, longest=0.003 s, average=0.003 s; distance=8 kB, estimate=8 kB
+2026-05-11 20:47:50.493 UTC [1] LOG:  database system is shut down
+2026-05-11 20:50:01.712 UTC [1] LOG:  starting PostgreSQL 15.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+2026-05-11 20:50:01.713 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-05-11 20:50:01.713 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-05-11 20:50:01.722 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-05-11 20:50:01.744 UTC [30] LOG:  database system was shut down at 2026-05-11 20:47:50 UTC
+2026-05-11 20:50:01.761 UTC [1] LOG:  database system is ready to accept connections
+2026-05-11 20:55:07.657 UTC [28] LOG:  checkpoint starting: time
+2026-05-11 20:55:07.995 UTC [28] LOG:  checkpoint complete: wrote 6 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.309 s, sync=0.010 s, total=0.338 s; sync files=5, longest=0.005 s, average=0.002 s; distance=9 kB, estimate=9 kB
+2026-05-11 20:56:50.396 UTC [1] LOG:  received fast shutdown request
+2026-05-11 20:56:50.400 UTC [1] LOG:  aborting any active transactions
+2026-05-11 20:56:50.409 UTC [1] LOG:  background worker "logical replication launcher" (PID 33) exited with exit code 1
+2026-05-11 20:56:50.409 UTC [28] LOG:  shutting down
+2026-05-11 20:56:50.413 UTC [28] LOG:  checkpoint starting: shutdown immediate
+2026-05-11 20:56:50.426 UTC [28] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.017 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=8 kB
+2026-05-11 20:56:50.443 UTC [1] LOG:  database system is shut down
+2026-05-11 20:57:08.992 UTC [1] LOG:  starting PostgreSQL 15.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+2026-05-11 20:57:08.994 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-05-11 20:57:08.994 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-05-11 20:57:09.004 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-05-11 20:57:09.019 UTC [36] LOG:  database system was shut down at 2026-05-11 20:56:50 UTC
+2026-05-11 20:57:09.038 UTC [1] LOG:  database system is ready to accept connections
+2026-05-11 20:57:31.476 UTC [41] ERROR:  relation "vids" does not exist at character 15
+2026-05-11 20:57:31.476 UTC [41] STATEMENT:  SELECT * FROM vids;
+2026-05-11 21:02:03.012 UTC [1] LOG:  received fast shutdown request
+2026-05-11 21:02:03.018 UTC [1] LOG:  aborting any active transactions
+2026-05-11 21:02:03.020 UTC [41] FATAL:  terminating connection due to administrator command
+2026-05-11 21:02:03.025 UTC [1] LOG:  background worker "logical replication launcher" (PID 39) exited with exit code 1
+2026-05-11 21:02:03.029 UTC [34] LOG:  shutting down
+2026-05-11 21:02:03.033 UTC [34] LOG:  checkpoint starting: shutdown immediate
+2026-05-11 21:02:03.070 UTC [34] LOG:  checkpoint complete: wrote 6 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.015 s, sync=0.009 s, total=0.042 s; sync files=5, longest=0.004 s, average=0.002 s; distance=10 kB, estimate=10 kB
+2026-05-11 21:02:03.085 UTC [1] LOG:  database system is shut down

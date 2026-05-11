@@ -111,9 +111,12 @@ if __name__ == "__main__":
 
 
   # so the command every thing should wrok with as inteded nothing should change there the vid raw locaiton should be where the donloaded file is located
-  vid_raw_location = str(temp_dowload_location/vid_loaction)
-  encoded_video_sotore_location = str(temp_encode_location/vid_loaction)
-  encoded_video_sotore_location
+  vid_raw_location = str(vid_loaction)
+  encoded_video_sotore_location_path = temp_encode_location/new_work.vid_location
+  encoded_video_sotore_location_path.mkdir(parents=True, exist_ok=True)
+
+  
+  encoded_video_sotore_location = str(encoded_video_sotore_location_path)
 
   print(f":::::: got vid raw location at ::::::::::::: {vid_raw_location}")
   
@@ -185,7 +188,7 @@ if __name__ == "__main__":
    reportResult = report_issue(issueReport)
    #log
    print("::::::::::::reporting issue:::::::::::::::::::::::::::::")
-   print("::::::::::::::server responded with the status code}{}:::::", reportResult)
+   print("::::::::::::::server responded with the status code}:::::", reportResult)
 
    if(reportResult != 200):
     print("server handling issue responded with iligal status code")
@@ -209,8 +212,8 @@ if __name__ == "__main__":
    ## will add the delting step here for now we will just say false
    issueReport = "holder"
    delete_result = delete_file(vid_raw_location)
-   s3_object_delete_result = s3_clinet.delete_object("raw-upload", vid_loaction)
-   if(delete_result==1 and s3_object_delete_result):
+   #s3_object_delete_result = s3_clinet.delete_object("raw-upload", vid_loaction)
+   if(delete_result==1 ): # and s3_object_delete_result
      
      issueReport = IssueReport(vid_id, False, False, True, False)
 
