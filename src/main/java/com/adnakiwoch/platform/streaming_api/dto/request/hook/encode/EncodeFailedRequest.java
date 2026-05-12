@@ -4,7 +4,9 @@ import java.util.UUID;
 
 public record EncodeFailedRequest(
     UUID vidId,
+    boolean vidDownload,
     boolean notVid,
     boolean brokenVid,
     boolean issueNotSpecified,
-    boolean fileDeleted) {}
+    boolean fileDeletedDeletedLocally,
+    boolean fileDeletedFromS3) {}

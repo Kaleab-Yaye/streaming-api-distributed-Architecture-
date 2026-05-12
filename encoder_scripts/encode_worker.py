@@ -11,9 +11,15 @@ import subprocess
 import shutil
 
 class Const:
+  # here are the location variables and what they are meant to point to
+  # new_work.vid_location: is the vid Key in s3 raw uploads, and will aslo be the the
+  # ...key for the encoded version
+  #temp_download_location: is the directory where vid is download from s3 storage
+  #temp_encode_location: is a directory where encoded videos are saved before getting zipped
+  #temp_ziped_location: is dir where the zipped and encoded vid file is stored before getting upload
+  # vid_loaction: is orphan variable and can be removed but i wont
+
  time_to_sleep = 30
-
-
 
 
 def extract_env()->tuple[str, str]:
@@ -100,16 +106,6 @@ if __name__ == "__main__":
    #
    continue
 
-
-
-   
-
-  
-
-
-
-
-
   # so the command every thing should wrok with as inteded nothing should change there the vid raw locaiton should be where the donloaded file is located
   vid_raw_location = str(vid_loaction)
   encoded_video_sotore_location_path = temp_encode_location/new_work.vid_location
@@ -137,15 +133,21 @@ if __name__ == "__main__":
   if(prob_check_result[0] != 0 or int( prob_check_result[1])<=1):
    issueReport = "holder"
    delete_result = delete_file(vid_raw_location)
-   s3_object_delete_result = s3_clinet.delete_object("raw-upload", vid_loaction)
+   s3_object_delete_result = s3_clinet.delete_object("raw-upload", new_work.vid_location)
 
-   if((delete_result==1) and s3_object_delete_result):
+   if((delete_result==1)):
+    if(not s3_object_delete_result):
     ### i will add video state to the Enum when a file could't be delted from s3 storage but for now we will know it bassed on log
-    issueReport = IssueReport(vid_id, True, False, False, False)
-
+     issueReport = IssueReport(vid_id, True, False, False, False, False)
+    else:
+     issueReport = IssueReport(vid_id, True, False, False, False, True)
+      
    else:
-    issueReport = IssueReport(vid_id, True, False, False, True)
-      #log
+    if(not s3_object_delete_result):
+     issueReport = IssueReport(vid_id, True, False, False, True, False)
+    else:
+     issueReport = IssueReport(vid_id, True, False, False, True, True)
+     
 
    print("::::::::::::reporting issue:::::::::::::::::::::::::::::")
    reportResult = report_issue(issueReport)
@@ -176,13 +178,24 @@ if __name__ == "__main__":
   if(decode_check_result[0] != 0):
    issueReport = "holder"
    delete_result = delete_file(vid_raw_location)
-   s3_object_delete_result = s3_clinet.delete_object("raw-upload", vid_loaction)
-   if(delete_result==1 and s3_object_delete_result ):
+   s3_object_delete_result = s3_clinet.delete_object("raw-upload", new_work.vid_location )
+   if(delete_result==1 ):
+     if(not s3_object_delete_result):
+      issueReport = IssueReport(vid_id, False, True, False, False, False)
+     else:
+      issueReport = IssueReport(vid_id, False, True, False, False, True)
+    
+
+    
+
      
-     issueReport = IssueReport(vid_id, False, True, False, False)
+     
   
    else:
-     issueReport = IssueReport(vid_id, False, True, False, True)
+     if(not s3_object_delete_result):
+      issueReport = IssueReport(vid_id, False, True, False, True, False)
+     else:
+      issueReport = IssueReport(vid_id, False, True, False, True, True)
       #log
    print("::::::::::::reporting issue:::::::::::::::::::::::::::::")
    reportResult = report_issue(issueReport)
@@ -212,19 +225,27 @@ if __name__ == "__main__":
    ## will add the delting step here for now we will just say false
    issueReport = "holder"
    delete_result = delete_file(vid_raw_location)
-   #s3_object_delete_result = s3_clinet.delete_object("raw-upload", vid_loaction)
-   if(delete_result==1 ): # and s3_object_delete_result
-     
-     issueReport = IssueReport(vid_id, False, False, True, False)
+   s3_object_delete_result = s3_clinet.delete_object("raw-upload", new_work.vid_location)
+   if(delete_result==1 ):
+     if(s3_object_delete_result): # 
+      issueReport = IssueReport(vid_id, False, False, True, False, True)
+     else:
+       issueReport = IssueReport(vid_id, False, False, True, False, False)
+
 
    else:
-     issueReport = IssueReport(vid_id, False, False, True, True)
+      if(s3_object_delete_result):
+       issueReport = IssueReport(vid_id, False, False, True, True, True)
+      else:
+       issueReport = IssueReport(vid_id, False, False, True, True, False)
+       
+
 
    #log
    print("::::::::::::reporting issue:::::::::::::::::::::::::::::")
    reportResult = report_issue(issueReport)
    #log
-   print("::::::::::::::server responded with the status code}{}:::::", reportResult)
+   print(f"::::::::::::::server responded with the status code{ reportResult}:::::")
 
    if(reportResult != 200):
     print("server handling issue responded with iligal status code")
@@ -233,34 +254,37 @@ if __name__ == "__main__":
 
   jobDone = "holder"
 
+
+## job done setup
+
+  print("trying to zip and upload encnoded file")
   
   delete_result = delete_file(vid_raw_location)
-  s3_object_delete_result = s3_clinet.delete_object("raw-upload", vid_loaction)
-  if(delete_result==1 and s3_object_delete_result):
-    jobDone = JobDone(vid_id, False, new_work.vid_location, vid_length)
-  else:
-    jobDone = JobDone(vid_id, True, new_work.vid_location, vid_length )
+  zip_destination= str(temp_ziped_location/new_work.vid_location) + ".zip"
+  encoded_and_ziped_key = new_work.vid_location+".zip"
+  encoded_bucket = "encoded"
 
+  zip_and_upload_result = zip_and_upload(encoded_video_sotore_location, zip_destination, encoded_and_ziped_key, encoded_bucket )
+  print(f"out of ziping and uplaoding with the result zipng:{zip_and_upload_result[0]}, uploading:{zip_and_upload_result[1]}")
+  s3_object_delete_result = False
+
+  if(zip_and_upload_result[1]):
+   s3_object_delete_result = s3_clinet.delete_object("raw-upload", new_work.vid_location)
+
+  if(delete_result==1):
+    if(not s3_object_delete_result):
+     jobDone = JobDone(vid_id, False, new_work.vid_location, vid_length, s3_object_delete_result, zip_and_upload_result[0], zip_and_upload_result[1])
+  else:
+    jobDone = JobDone(vid_id, True, new_work.vid_location, vid_length, s3_object_delete_result, zip_and_upload_result[0], zip_and_upload_result[1] ) 
+
+  
 
 
   print(f"::::::::::::reporting jobe done with {jobDone.length}:::::::::::::::::::::::::::::")
 
   jobeDoneResponseResult = successJob(jobDone)
-  print(":::::::::::: jobe done report from server stuatus code:::::::::::::::::::::::::::::", jobeDoneResponseResult)
+  print(f":::::::::::: jobe done report from server stuatus code:::::::::::::::::::::::::::::{jobeDoneResponseResult}", )
 
   if(jobeDoneResponseResult != 200):
-    print(":::::::::::::::::::::::::::::::::::::server handling job complete reqeust responded with iligal status code::::::::::::::::::::::::::::::;")
-
-  print("trying to zip and upload encnoded file")
-  zip_destination= str(temp_ziped_location/vid_loaction) + ".zip"
-  encoded_and_ziped_key = vid_loaction+".zip"
-  encoded_bucket = "encoded"
-
-  zip_and_upload_result = zip_and_upload(encoded_video_sotore_location, zip_destination,encoded_and_ziped_key,encoded_bucket )
-  if (not zip_and_upload_result[0]):
-   print(f"ziping faild which meant we could precced to uploading")
-   continue
-  if (zip_and_upload_result[1] and zip_and_upload_result[0]):
-   print(f"zipped and uploaded the vidro all good")
-  else:
-   print(f"zipped but could uplaod the file ")
+   print(f"server responsded with the status code {jobeDoneResponseResult} ")
+ 

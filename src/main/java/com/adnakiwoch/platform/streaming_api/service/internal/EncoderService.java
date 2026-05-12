@@ -29,7 +29,7 @@ public class EncoderService {
     }
     Vid vid = vidOptional.get();
 
-    // vid.setVidStat(VidStat.ENCODING);
+    vid.setVidStat(VidStat.ENCODING);
     vidRepo.save(vid);
     return ResponseEntity.ok().body(new EncodeResponse(vid.getUploadLocation(), vid.getId()));
   }
@@ -44,18 +44,33 @@ public class EncoderService {
 
     Vid vid = vidOptional.get();
 
-    if (encodeFailedRequest.fileDeleted()) {
+    if (encodeFailedRequest.fileDeletedDeletedLocally()) {
+      // part of teh code i can see serves little use but will let it stay as i see no need to
+      // remove it
       vid.setPresent(false);
     }
 
     if (encodeFailedRequest.notVid()) {
-      vid.setVidStat(VidStat.NOT_VID);
+      if (encodeFailedRequest.fileDeletedFromS3()) {
+        vid.setVidStat(VidStat.NOT_VID);
+      } else {
+        vid.setVidStat(VidStat.ENCODER_NOT_VID_DELETE_OBJECT_S3_FAILER_FAILED);
+      }
 
     } else if (encodeFailedRequest.brokenVid()) {
-      vid.setVidStat(VidStat.BROKEN_VID);
+      if (encodeFailedRequest.fileDeletedFromS3()) {
+        vid.setVidStat(VidStat.BROKEN_VID);
+      } else {
+        vid.setVidStat(VidStat.ENCODER_BROKEN_VID_DELETE_OBJECT_S3_FAILER_FAILED);
+      }
 
     } else if (encodeFailedRequest.issueNotSpecified()) {
-      vid.setVidStat(VidStat.ENCODERR);
+
+      if (encodeFailedRequest.fileDeletedFromS3()) {
+        vid.setVidStat(VidStat.ENCODERR);
+      } else {
+        vid.setVidStat(VidStat.ENCODER_ENCODERR_DELETE_OBJECT_S3_FAILER_FAILED);
+      }
     }
 
     vidRepo.save(vid);
@@ -82,15 +97,22 @@ public class EncoderService {
     vid.setLength(encodeDoneRequest.length());
     vid.setEncodedLocation(encodeDoneRequest.finalLocation());
 
-    vid.setPresent(!encodeDoneRequest.rawDeleted());
+    // vid.setPresent(!encodeDoneRequest.rawDeleted());
     log.info("setting up the vid file after complete is done going fine");
 
     if (!encodeDoneRequest.rawDeleted()) {
-      log.warn(
-          "encoder could't delte the tempuplaod location, vidID {}. and raw storage location {} ",
-          encodeDoneRequest.vidId(),
-          encodeDoneRequest.finalLocation());
       vid.setPresent(true);
+    } else {
+      vid.setPresent(false);
+    }
+
+    if (!encodeDoneRequest.s3ObjectDeleted()) {
+      vid.setVidStat(VidStat.ENCODER_DELETE_OBJECT_S3_JOB_DONE_FAILED);
+    }
+    if (!encodeDoneRequest.s3ObjectZipped()) {
+      vid.setVidStat(VidStat.ENCODER_ZIP_FAILED);
+    } else if (!encodeDoneRequest.s3ObjectUploaded()) {
+      vid.setVidStat(VidStat.ENCODER_UPLOAD_TO_S3_FAILED);
     }
 
     vidRepo.save(vid);

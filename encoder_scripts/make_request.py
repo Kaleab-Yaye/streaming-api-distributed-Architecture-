@@ -18,19 +18,23 @@ class NewJob:
         self.status_code = status_code
 
 class IssueReport:
-    def __init__(self, vidId:str, notVid:bool, brokenVid:bool, issueNotSpecified:bool, fileDeleted:bool):
+    def __init__(self, vidId:str, notVid:bool, brokenVid:bool, issueNotSpecified:bool, fileDeleted:bool, objectDeltedFromS3:bool):
         self.vidId = vidId
         self.notVid = notVid
         self.brokenVid = brokenVid
         self.issueNotSpecified = issueNotSpecified
         self.fileDeleted = fileDeleted
+        self.objectDeltedFromS3 = objectDeltedFromS3
 
 class JobDone:
-    def __init__(self, vidId:str, rawDeleted:bool, finalLocation:str, length:str):
+    def __init__(self, vidId:str, rawDeleted:bool, finalLocation:str, length:str, objectDeltedFromS3:bool, s3ObjectZipped:bool, s3ObjectUploaded:bool):
         self.vidId = vidId
         self.finalLocation = finalLocation
         self.rawDeleted = rawDeleted
         self.length = length
+        self.objectDeltedFromS3 = objectDeltedFromS3
+        self.s3ObjectUploaded = s3ObjectUploaded
+        self.s3ObjectZipped = s3ObjectZipped
 
          
 
@@ -44,13 +48,13 @@ def get_new_job () -> NewJob:
      
 
 def report_issue (issueReport: IssueReport)->int:
-    EncodeFailedRequest = {'vidId': issueReport.vidId, 'notVid':issueReport.notVid, 'brokenVid': issueReport.brokenVid, 'issueNotSpecified': issueReport.issueNotSpecified,'fileDeleted':issueReport.fileDeleted}
+    EncodeFailedRequest = {'vidId': issueReport.vidId, 'notVid':issueReport.notVid, 'brokenVid': issueReport.brokenVid, 'issueNotSpecified': issueReport.issueNotSpecified,'fileDeleted':issueReport.fileDeleted , 'fileDeletedFromS3':issueReport.objectDeltedFromS3}
     
     response = requests.post( BaseURL.issue, json=EncodeFailedRequest )
     return response.status_code
 
 def successJob(jobDone: JobDone)->int:
-    EncodeDoneRequest = {'vidId':jobDone.vidId, 'rawDeleted':jobDone.rawDeleted, 'finalLocation':jobDone.finalLocation, 'length':jobDone.length }
+    EncodeDoneRequest = {'vidId':jobDone.vidId, 'rawDeleted':jobDone.rawDeleted, 'finalLocation':jobDone.finalLocation, 'length':jobDone.length, 's3ObjectDeleted':jobDone.objectDeltedFromS3,'s3ObjectZipped':jobDone.s3ObjectZipped, 's3ObjectUploaded':jobDone.s3ObjectZipped }
     print("::::: the loaded id is ", jobDone.vidId)
     response = requests.post(BaseURL.done, json=EncodeDoneRequest )
     return response.status_code
