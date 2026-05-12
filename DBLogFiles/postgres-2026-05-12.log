@@ -163,3 +163,28 @@
 2026-05-12 17:11:57.337 UTC [28] LOG:  checkpoint starting: shutdown immediate
 2026-05-12 17:11:57.380 UTC [28] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.021 s, sync=0.001 s, total=0.049 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=6 kB
 2026-05-12 17:11:57.405 UTC [1] LOG:  database system is shut down
+2026-05-12 18:40:27.297 UTC [1] LOG:  starting PostgreSQL 15.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+2026-05-12 18:40:27.297 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-05-12 18:40:27.298 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-05-12 18:40:27.314 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-05-12 18:40:27.337 UTC [30] LOG:  database system was shut down at 2026-05-12 17:11:57 UTC
+2026-05-12 18:40:27.376 UTC [1] LOG:  database system is ready to accept connections
+2026-05-12 18:41:01.868 UTC [40] ERROR:  column v1_0.version does not exist at character 149
+2026-05-12 18:41:01.868 UTC [40] STATEMENT:  select v1_0.id,v1_0.about,v1_0.encoded_location,v1_0.length,v1_0.name,v1_0.present,v1_0.size,v1_0.upload_location,v1_0.uploaded_at,v1_0.uploaded_by,v1_0.version,v1_0.vid_stat from vid v1_0 where v1_0.vid_stat='UPLOADED' order by v1_0.uploaded_at desc fetch first 1 rows only
+2026-05-12 18:45:28.660 UTC [28] LOG:  checkpoint starting: time
+2026-05-12 18:45:28.829 UTC [28] LOG:  checkpoint complete: wrote 4 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.126 s, sync=0.008 s, total=0.169 s; sync files=3, longest=0.004 s, average=0.003 s; distance=0 kB, estimate=0 kB
+2026-05-12 18:49:25.849 UTC [1] LOG:  received fast shutdown request
+2026-05-12 18:49:25.853 UTC [1] LOG:  aborting any active transactions
+2026-05-12 18:49:25.869 UTC [1] LOG:  background worker "logical replication launcher" (PID 33) exited with exit code 1
+2026-05-12 18:49:25.871 UTC [28] LOG:  shutting down
+2026-05-12 18:49:25.876 UTC [28] LOG:  checkpoint starting: shutdown immediate
+2026-05-12 18:49:25.896 UTC [28] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.004 s, sync=0.001 s, total=0.026 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=0 kB
+2026-05-12 18:49:25.921 UTC [1] LOG:  database system is shut down
+2026-05-12 18:50:18.349 UTC [1] LOG:  starting PostgreSQL 15.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+2026-05-12 18:50:18.350 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-05-12 18:50:18.350 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-05-12 18:50:18.362 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-05-12 18:50:18.379 UTC [31] LOG:  database system was shut down at 2026-05-12 18:49:25 UTC
+2026-05-12 18:50:18.398 UTC [1] LOG:  database system is ready to accept connections
+2026-05-12 18:52:57.533 UTC [54] ERROR:  syntax error at or near "" at character 18
+2026-05-12 18:52:57.533 UTC [54] STATEMENT:  SELECT * FROM VID;

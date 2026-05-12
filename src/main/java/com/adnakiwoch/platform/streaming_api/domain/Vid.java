@@ -61,4 +61,8 @@ public class Vid {
 
   @Column(name = "present")
   private @Getter @Setter boolean present;
+
+  @Column(name = "version")
+  @Version
+  private @Getter @Setter Integer version;
 }

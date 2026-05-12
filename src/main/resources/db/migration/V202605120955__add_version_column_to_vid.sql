@@ -1,0 +1,1 @@
+ALTER TABLE vid ADD COLUMN version INTEGER;
