@@ -4,9 +4,12 @@ import com.adnakiwoch.platform.streaming_api.domain.Vid;
 import com.adnakiwoch.platform.streaming_api.dto.request.hook.encode.EncodeDoneRequest;
 import com.adnakiwoch.platform.streaming_api.dto.request.hook.encode.EncodeFailedRequest;
 import com.adnakiwoch.platform.streaming_api.dto.response.hooks.encode.EncodeResponse;
+import com.adnakiwoch.platform.streaming_api.exception.resource.ResourceNotFoundException;
 import com.adnakiwoch.platform.streaming_api.repository.VidRepo;
+import com.github.benmanes.caffeine.cache.Cache;
 import enums.VidStat;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +20,35 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class EncoderService {
   private final VidRepo vidRepo;
+  private final Cache<Integer, UUID> cache;
 
-  public EncoderService(VidRepo vidRepo) {
+  public EncoderService(VidRepo vidRepo, Cache<Integer, UUID> cache) {
     this.vidRepo = vidRepo;
+    this.cache = cache;
   }
 
   @Transactional
-  public ResponseEntity<EncodeResponse> getVidToEncode() {
+  public ResponseEntity<EncodeResponse> getVidToEncode(String machineNumber) {
+
+    int mechNumber = Integer.parseInt(machineNumber);
+    if (mechNumber <= 0) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    if (cache.asMap().containsKey(mechNumber)) {
+      Optional<Vid> vidoption = vidRepo.findById(cache.getIfPresent(mechNumber));
+      Vid vid =
+          vidoption.orElseThrow(
+              () ->
+                  new ResourceNotFoundException(
+                      "the vid with the vid id "
+                          + cache.getIfPresent(mechNumber)
+                          + " didd't exist"));
+      vid.setEncodeInt(mechNumber);
+      return ResponseEntity.ok().body(new EncodeResponse(vid.getUploadLocation(), vid.getId()));
+    }
+
+
 
     Optional<Vid> vidOptional = vidRepo.getVidTOBeEncoded();
     if (vidOptional.isEmpty()) {
@@ -33,10 +58,18 @@ public class EncoderService {
 
     vid.setVidStat(VidStat.ENCODING);
     vidRepo.save(vid);
+    cache.put(mechNumber, vid.getId());
     return ResponseEntity.ok().body(new EncodeResponse(vid.getUploadLocation(), vid.getId()));
   }
 
-  public ResponseEntity<HttpStatus> handleVidEncodeIssue(EncodeFailedRequest encodeFailedRequest) {
+  public ResponseEntity<HttpStatus> handleVidEncodeIssue(
+      EncodeFailedRequest encodeFailedRequest, String mechNumber) {
+    int machineNumber = Integer.parseInt(mechNumber);
+
+    if (cache.asMap().containsKey(machineNumber)) {
+      cache.invalidate(machineNumber);
+    }
+
     Optional<Vid> vidOptional = vidRepo.findById(encodeFailedRequest.vidId());
 
     if (vidOptional.isEmpty()) {
@@ -79,7 +112,12 @@ public class EncoderService {
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 
-  public ResponseEntity<HttpStatus> encodeDone(EncodeDoneRequest encodeDoneRequest) {
+  public ResponseEntity<HttpStatus> encodeDone(
+      EncodeDoneRequest encodeDoneRequest, String mechNumber) {
+    int machineNumber = Integer.parseInt(mechNumber);
+    if (cache.asMap().containsKey(machineNumber)) {
+      cache.invalidate(machineNumber);
+    }
     log.info("encode done reqeust was made with the id {}", encodeDoneRequest.vidId());
     log.info(
         "enode done reqeus  was mad with final locaiton {}", encodeDoneRequest.finalLocation());

@@ -36,10 +36,18 @@ class JobDone:
         self.s3ObjectUploaded = s3ObjectUploaded
         self.s3ObjectZipped = s3ObjectZipped
 
-         
+ 
+ 
+ 
+ 
+header = {
+         'Mech-Number':os.getenv("MECH_NUMBER")
+     }  
+  
 
 def get_new_job () -> NewJob:
-     get_new_work = requests.get(BaseURL.get_new_job)
+    
+     get_new_work = requests.get(BaseURL.get_new_job, headers=header)
      if get_new_work.status_code == 204:
          return  NewJob(None, None, 204 )
      elif get_new_work.status_code == 200:
@@ -50,12 +58,12 @@ def get_new_job () -> NewJob:
 def report_issue (issueReport: IssueReport)->int:
     EncodeFailedRequest = {'vidId': issueReport.vidId, 'notVid':issueReport.notVid, 'brokenVid': issueReport.brokenVid, 'issueNotSpecified': issueReport.issueNotSpecified,'fileDeleted':issueReport.fileDeleted , 'fileDeletedFromS3':issueReport.objectDeltedFromS3}
     
-    response = requests.post( BaseURL.issue, json=EncodeFailedRequest )
+    response = requests.post( BaseURL.issue, json=EncodeFailedRequest, headers=header )
     return response.status_code
 
 def successJob(jobDone: JobDone)->int:
     EncodeDoneRequest = {'vidId':jobDone.vidId, 'rawDeleted':jobDone.rawDeleted, 'finalLocation':jobDone.finalLocation, 'length':jobDone.length, 's3ObjectDeleted':jobDone.objectDeltedFromS3,'s3ObjectZipped':jobDone.s3ObjectZipped, 's3ObjectUploaded':jobDone.s3ObjectZipped }
     print("::::: the loaded id is ", jobDone.vidId)
-    response = requests.post(BaseURL.done, json=EncodeDoneRequest )
+    response = requests.post(BaseURL.done, json=EncodeDoneRequest, headers= header )
     return response.status_code
 

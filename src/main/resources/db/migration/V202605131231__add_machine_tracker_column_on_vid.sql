@@ -1,0 +1,1 @@
+ALTER TABLE vid ADD COLUMN encode_int INT DEFAULT 0;

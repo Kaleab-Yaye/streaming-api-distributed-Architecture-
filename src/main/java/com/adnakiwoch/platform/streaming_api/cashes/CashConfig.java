@@ -1,4 +1,4 @@
-package com.adnakiwoch.platform.streaming_api.config.asynchronous;
+package com.adnakiwoch.platform.streaming_api.cashes;
 
 import com.adnakiwoch.platform.streaming_api.domain.Watch;
 import com.adnakiwoch.platform.streaming_api.exception.resource.ResourceNotFoundException;
@@ -53,5 +53,10 @@ public class CashConfig {
         cause,
         currentFrame,
         x);
+  }
+
+  @Bean
+  Cache<Integer, UUID> getCatchForMachineEncodingTracking() {
+    return Caffeine.newBuilder().build();
   }
 }

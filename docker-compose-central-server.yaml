@@ -44,6 +44,7 @@ services:
       - CENTERAL_CERV=http://api
 
 
+
   postgres:
     image: postgres:15-alpine
     container_name: db_dist
