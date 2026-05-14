@@ -29,6 +29,7 @@ public class EncoderService {
 
   @Transactional
   public ResponseEntity<EncodeResponse> getVidToEncode(String machineNumber) {
+    //ok gotta admite this gotta be fixed but it is not that important for now
 
     int mechNumber = Integer.parseInt(machineNumber);
     if (mechNumber <= 0) {
