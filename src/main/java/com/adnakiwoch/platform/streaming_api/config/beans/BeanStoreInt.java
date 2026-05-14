@@ -3,6 +3,7 @@ package com.adnakiwoch.platform.streaming_api.config.beans;
 import java.net.URI;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestClient;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -39,4 +40,10 @@ public class BeanStoreInt {
         .forcePathStyle(true)
         .build();
   }
+
+  @Bean
+  public RestClient restClient() {
+      return RestClient.create();
+  }
+
 }
