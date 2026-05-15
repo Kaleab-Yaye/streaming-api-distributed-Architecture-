@@ -79,12 +79,14 @@ public class UserService {
     user.setUserName(name);
     user.setEmail(email);
     user.setPassword(passwordEncoder.encode(password));
+    user.setIsStudio(true);
     userRepository.save(user);
 
     Subscription subscription = new Subscription();
     subscription.setUser(user);
 
     subscriptionRepo.save(subscription);
+    subscription.setStatus(true);
     successRegistrationCounter.increment();
 
     emailService.sendEmailToUser(

@@ -21,7 +21,7 @@ public interface VidRepo extends JpaRepository<Vid, UUID> {
 
   Optional<Vid> getVidByEncodedLocation(String vidLoc);
 
-  List<Vid> getVidByVidStatOrVidStat(VidStat vidStat,VidStat vidStat2);
+  List<Vid> getVidByVidStatOrVidStat(VidStat vidStat, VidStat vidStat2);
 
   @Query(value = "SELECT v from Vid v WHERE  v.vidStat = 'ENCODING' AND  v.encodeInt = :encodeInt")
   Optional<Vid> checkMachineWork(int encodeInt);

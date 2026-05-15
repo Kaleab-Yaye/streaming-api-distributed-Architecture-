@@ -13,7 +13,6 @@ import enums.VidStat;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.util.TypeCollector;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,7 +33,8 @@ public class VidService {
       JwtService jwtService,
       VidRepo vidRepo,
       WatchService watchService,
-      VidServiceUtil vidServiceUtil, RestClient restClient ) {
+      VidServiceUtil vidServiceUtil,
+      RestClient restClient) {
     this.jwtService = jwtService;
     this.vidRepo = vidRepo;
     this.watchService = watchService;
@@ -85,47 +85,47 @@ public class VidService {
     }
     Vid vid = vidOptional.get();
 
-    if(vid.getVidStat()==(VidStat.READY)){
-        java.lang.Double currentFrame = watchService.watchVidRequestHandler(vid.getId(), userId);
+    if (vid.getVidStat() == (VidStat.READY)) {
+      java.lang.Double currentFrame = watchService.watchVidRequestHandler(vid.getId(), userId);
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new WatchVidResponse(vid.getEncodedLocation(), currentFrame));
-
+      return ResponseEntity.status(HttpStatus.OK)
+          .body(new WatchVidResponse(vid.getEncodedLocation(), currentFrame));
     }
 
-      ResponseEntity<String> response = restClient.get()
-              .uri("http://stream_node:8000/health")
-              .retrieve()
-              .toEntity(String.class);
-      int statusCode = response.getStatusCode().value();
-      log.info("satus code of the requst made to streaming_node is {}", response.getStatusCode().value());
+    ResponseEntity<String> response =
+        restClient
+            .post()
+            .uri("http://stream-node:8000/download/new_vid/" + vid.getEncodedLocation())
+            .retrieve()
+            .toEntity(String.class);
+    int statusCode = response.getStatusCode().value();
+    log.info(
+        "satus code of the requst made to streaming_node is {}", response.getStatusCode().value());
 
-      if(response.getStatusCode()==HttpStatus.OK){
+    if (response.getStatusCode() == HttpStatus.OK) {
 
-          java.lang.Double currentFrame = watchService.watchVidRequestHandler(vid.getId(), userId);
-          vid.setVidStat(VidStat.READY);
-          vidRepo.save(vid);
+      java.lang.Double currentFrame = watchService.watchVidRequestHandler(vid.getId(), userId);
+      vid.setVidStat(VidStat.READY);
 
-          return ResponseEntity.status(HttpStatus.OK)
-                  .body(new WatchVidResponse(vid.getEncodedLocation(), currentFrame));
-      }
+      vidRepo.save(vid);
 
-      if (response.getStatusCode()==HttpStatus.NOT_FOUND){
-          vid.setVidStat(VidStat.STREAMING_NODE_DOWNLOADING_FAILED);
-          vidRepo.save(vid);
-          return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-      }
-      if (response.getStatusCode()==HttpStatus.FAILED_DEPENDENCY){
-          vid.setVidStat(VidStat.STREAMING_NODE_ZIPPING_FAILED);
-          vidRepo.save(vid);
-          return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-      }
+      return ResponseEntity.status(HttpStatus.OK)
+          .body(new WatchVidResponse(vid.getEncodedLocation(), currentFrame));
+    }
 
+    if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+      vid.setVidStat(VidStat.STREAMING_NODE_DOWNLOADING_FAILED);
+      vidRepo.save(vid);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+    if (response.getStatusCode() == HttpStatus.FAILED_DEPENDENCY) {
+      vid.setVidStat(VidStat.STREAMING_NODE_ZIPPING_FAILED);
+      vidRepo.save(vid);
 
-      return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
 
-
-
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
   }
 
   public ResponseEntity<GetAvailableVid> getAvailableVidPageHandler() {

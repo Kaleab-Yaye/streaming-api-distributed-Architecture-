@@ -1,0 +1,171 @@
+services:
+
+  perm-volume-fix-init:
+    image: busybox
+    container_name: fix_init
+    user: "0:0"
+    volumes:
+      - s3_store:/s3_store
+      - test_html:/test_html
+      - temp_upload:/temp_upload
+      - s3_store:/s3_store
+      - stream_store:/stream_store
+      - downloaded:/downloaded
+      - temp_download:/temp_download
+      - temp_for_nginx:/temp_for_nginx
+
+    command: sh -c "chown -R 1000:1000 /s3_store /test_html /temp_upload /stream_store /downloaded /temp_download /temp_for_nginx && chmod -R 775 /s3_store /test_html /temp_upload /stream_store /downloaded /temp_download temp_for_nginx"
+    restart: "no"
+
+  minio:
+    container_name: S3_Store
+    image: quay.io/minio/minio:latest
+    command: server /data --console-address ":9001"
+    user: "1000:1000"
+    environment:
+      MINIO_ROOT_USER: ktadmin
+      MINIO_ROOT_PASSWORD: 12345678
+    volumes:
+      - s3_store:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+  api:
+    image: ghcr.io/kaleab-yaye/central_server_spring_image:latest
+    container_name: stream_dist
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    volumes:
+      - temp_upload:/app/temp_upload
+    environment:
+      - TEMP_UPLOAD=./temp_upload
+      - S3_URI=http://minio:9000
+      - S3_ACCESS_KEY=ktadmin
+      - S3_SECRET_ACCESS_KEY=12345678
+    user: "10001:1000"
+
+
+  encoder:
+    image: ghcr.io/kaleab-yaye/encode:latest
+    container_name: encoder-dist
+    depends_on:
+      - api
+      - nginx
+      - postgres
+    environment:
+      - RAW_VID=/data
+      - PROC_ED=/encoded
+      - S3_URI=http://minio:9000
+      - S3_ACCESS_KEY=ktadmin
+      - S3_SECRET_ACCESS_KEY=12345678
+      - CENTERAL_CERV=http://api
+      - MECH_NUMBER=1
+    volumes:
+      - temp_download:/temp_download
+      - temp_upload_encoder:/temp_upload
+      - temp_ziped:/temp_ziped
+
+  stream-node:
+    image: ghcr.io/kaleab-yaye/stream-node-image:latest
+    container_name: stream_node
+    depends_on:
+      - api
+      - nginx
+      - postgres
+    environment:
+      - RAW_VID=/data
+      - PROC_ED=/encoded
+      - S3_URI=http://minio:9000
+      - S3_ACCESS_KEY=ktadmin
+      - S3_SECRET_ACCESS_KEY=12345678
+      - CENTERAL_CERV=http://api
+      - MECH_NUMBER=2
+    volumes:
+      - stream_store:/stream/store
+      - downloaded:/downloaded
+    ports:
+      - "8000:8000"
+    user: "10003:1000"
+
+
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: db2
+    environment:
+      - POSTGRES_USER=devuser # psql -d streaming_api_db -U devuser
+      - POSTGRES_PASSWORD=devsecret
+      - POSTGRES_DB=streaming_api_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../db/log:/var/log/postgresql
+    entrypoint:
+      - bash
+      - -c
+      - |
+        chown -R postgres:postgres /var/log/postgresql
+        exec docker-entrypoint.sh "$$@"
+      - "--"
+
+    command:
+      - "postgres"
+      - "-c"
+      - "logging_collector=on"
+      - "-c"
+      - "log_directory=/var/log/postgresql"
+      - "-c"
+      - "log_filename=postgres-%Y-%m-%d.log"
+      - "-c"
+      - "log_rotation_age=1d"
+      - "-c"
+      - "log_rotation_size=10MB"
+
+
+  nginx:
+    image: nginx:alpine
+    container_name: streaming_proxy_dist
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    volumes:
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - test_html:/store/html
+      - stream_store:/store/videos/encoded/
+      - temp_for_nginx:/var/cache/nginx/client_temp
+
+
+  tusd:
+    image: tusproject/tusd:sha-262f655
+    container_name: tus-serv-dist_dist
+    ports:
+      - "1080:1080"
+    volumes:
+      - temp_upload:/srv/tusd-data
+    command: >
+      -host=0.0.0.0 
+      -port=1080 
+      -upload-dir=/srv/tusd-data
+      -hooks-http=http://api:8080/api/hooks/tusd/upload
+      -hooks-http-retry=3
+    depends_on:
+      - api
+    user: "10005:1000"
+
+volumes:
+  pgdata:
+  test_html:
+  temp_upload:
+  s3_store:
+  stream_store:
+  downloaded:
+  temp_download:
+  temp_upload_encoder:
+  temp_ziped:
+  temp_for_nginx:
+

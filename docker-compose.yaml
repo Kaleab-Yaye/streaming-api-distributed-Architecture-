@@ -59,6 +59,30 @@ services:
         - CENTERAL_CERV=http://api
         - MECH_NUMBER=1
 
+  stream-node:
+    build:
+      context: .
+      dockerfile: Dockerfile.stream
+    container_name: stream_node
+    image: stream-node
+    depends_on:
+      - api
+      - nginx
+      - postgres
+    environment:
+      - RAW_VID=/data
+      - PROC_ED=/encoded
+      - S3_URI=http://minio:9000
+      - S3_ACCESS_KEY=ktadmin
+      - S3_SECRET_ACCESS_KEY=12345678
+      - CENTERAL_CERV=http://api
+      - MECH_NUMBER=2
+    volumes:
+    - stream_store:/stream/store
+    ports:
+      - "8000:8000"
+
+
 
   postgres:
     image: postgres:15-alpine
@@ -96,6 +120,7 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - test_html:/store/html
+      - stream_store:/store/videos/encoded/
 
 
   tusd:
@@ -119,3 +144,4 @@ volumes:
   test_html:
   temp_upload:
   s3_store:
+  stream_store:

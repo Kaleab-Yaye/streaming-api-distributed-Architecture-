@@ -43,7 +43,6 @@ public class BeanStoreInt {
 
   @Bean
   public RestClient restClient() {
-      return RestClient.create();
+    return RestClient.create();
   }
-
 }
