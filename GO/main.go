@@ -14,9 +14,9 @@ func HandelTestReqeust(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	fmt.Println("server starting at port 3000")
+	fmt.Println("server starting at port 3002")
 	http.HandleFunc("/test", HandelTestReqeust)
-	err := http.ListenAndServe("3000", nil)
+	err := http.ListenAndServe(":3002", nil)
 	if err != nil {
 		fmt.Println("there was an error with attachign the server to the port")
 

@@ -1,0 +1,6 @@
+FROM alpine:latest
+WORKDIR /app
+COPY ./GO/go-stream-node ./go-stream-node
+EXPOSE 3002
+RUN chmod +x go-stream-node
+CMD ["./go-stream-node"]
