@@ -1,10 +1,3 @@
-**Live Server URL:** [http://187.77.69.216/static/signup.html](http://187.77.69.216/static/signup.html)
-
-**Note on Project Scope:** TRAID Stream is fundamentally a backend and distributed systems infrastructure project. While we have provided a minimalistic frontend to demonstrate the core user flows, we made the strategic decision to dedicate our time to solving the hardest technical challenges: distributed, asynchronous video encoding, and edge-node caching. 
-
-**Infrastructure Verification (SSH Access):** We welcome deep technical reviews. Because the true complexity of this project is invisible from the browser (running across distributed Docker containers, and MinIO storage), we invite  you judges to inspect the live servers. Please reach out via Telegram (**@KalAxumawi**) and we will provide SSH keys so you can verify the distributed worker queues, Nginx routing, and system architecture in real-time.
-
-
 
 # TRAID Stream: Distributed Video Processing & Edge Delivery Network
 
@@ -211,5 +204,3 @@ sequenceDiagram
 * **Encoding Workers:** Python, FFmpeg
 * **Upload Protocol:** TusD (Go)
 * **Infrastructure:** Docker, Docker Compose (Multi-VPS deployment strategy)
-
-Our back end central server can be reached with this request. the front end is not that spectacualr becouse we spend days on teh back end and orchstrating container. and we hope our back end infstracture excuses the minimalstic front end we used
