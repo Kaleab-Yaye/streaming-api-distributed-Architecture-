@@ -48,7 +48,7 @@ header = {
 def get_new_job () -> NewJob:
     
      get_new_work = requests.get(BaseURL.get_new_job, headers=header)
-     if get_new_work.status_code == 204:
+     if get_new_work.status_code == 204: 
          return  NewJob(None, None, 204 )
      elif get_new_work.status_code == 200:
          get_new_work_json =  get_new_work.json()

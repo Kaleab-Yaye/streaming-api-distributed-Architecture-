@@ -7,7 +7,7 @@ import os
 class S3ClinetHandler:
     s3 = boto3.client(
         's3',
-        # all this shit also need to be enviroment variable
+        # all this shit alsSo need to be enviroment variable
     endpoint_url=os.getenv("S3_URI"),  # Your MinIO VM
     aws_access_key_id=os.getenv("S3_ACCESS_KEY"),
     aws_secret_access_key=os.getenv("S3_SECRET_ACCESS_KEY"),
