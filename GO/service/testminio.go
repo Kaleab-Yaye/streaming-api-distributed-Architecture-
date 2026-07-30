@@ -1,6 +1,7 @@
 package service
 
 import (
+	"GO/utils"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -64,6 +65,16 @@ func (s *S3ClintStore) DownloadFileFromMinIO(w http.ResponseWriter, r *http.Requ
 	err = s.MinioClint.FGetObject(context.Background(), downloadRequest.Bucket, downloadRequest.VidId, downloadedFilePath, minio.GetObjectOptions{})
 	if err != nil {
 		fmt.Println("there was an error in downlaoding the file", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+
+	}
+
+	// we gotta unzip it
+
+	result := utils.UnzipHandler(downloadRequest.VidId, downloadedFilePath, filepath.Join(".", "unzipped"))
+
+	if result != true {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 
