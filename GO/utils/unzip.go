@@ -33,12 +33,12 @@ func UnzipHandler(zipName, zipPath, zipDestination string) bool {
 			fmt.Println("there was an error opening a file in the archive>>", err)
 			return false
 		}
-		defer openedFile.Close()
 
 		if file.FileInfo().IsDir() {
 			err = os.MkdirAll(filepath.Join(destinationPath, file.Name), os.ModePerm)
 			if err != nil {
 				fmt.Println(" there was an error creating a dire >>>", err)
+
 			}
 
 			continue
@@ -77,6 +77,11 @@ func UnzipHandler(zipName, zipPath, zipDestination string) bool {
 			fmt.Println("there was an error copying a file content >>", err)
 			return false
 		}
+
+		// had to close the resourses manually as the discriptors were stucking up. deffering for big files would fuck the whole thing up
+
+		newCreatedFileInTheDestination.Close()
+		openedFile.Close()
 
 	}
 

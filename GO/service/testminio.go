@@ -62,7 +62,7 @@ func (s *S3ClintStore) DownloadFileFromMinIO(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	err = s.MinioClint.FGetObject(context.Background(), downloadRequest.Bucket, downloadRequest.VidId, downloadedFilePath, minio.GetObjectOptions{})
+	err = s.MinioClint.FGetObject(context.Background(), downloadRequest.Bucket, downloadRequest.VidId+".zip", downloadedFilePath, minio.GetObjectOptions{})
 	if err != nil {
 		fmt.Println("there was an error in downlaoding the file", err)
 		w.WriteHeader(http.StatusInternalServerError)
