@@ -34,4 +34,9 @@ build/
 .vscode/
 
 ### log files ###
-./DBLogFiles
+/DBLogFiles
+
+### raw downloaded files while downloading and unziping ####
+/GO/Raw_Download/
+/GO/unzipped/
+

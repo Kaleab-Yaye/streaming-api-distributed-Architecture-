@@ -45,6 +45,23 @@ func UnzipHandler(zipName, zipPath, zipDestination string) bool {
 		}
 
 		destFilePath := filepath.Join(destinationPath, file.Name)
+		destFilePathParentFolders := filepath.Dir(destFilePath)
+		err = os.MkdirAll(destFilePathParentFolders, os.ModePerm) // i ran to an issue before becouse of how the zip file is organized
+		/*
+				it looked more like this, and was passing the is.dir() test
+			master.m3u8
+			stream_360/segment_000.ts
+			stream_360/playlist.m3u8
+			stream_720/segment_000.ts
+			stream_720/playlist.m3u8
+			stream_480/segment_000.ts
+			stream_480/playlist.m3u8
+
+		*/
+
+		if err != nil {
+			fmt.Println("error occured while creating the parent folder chain for the file >>>", err)
+		}
 
 		newCreatedFileInTheDestination, err := os.Create(destFilePath)
 		if err != nil {
@@ -58,7 +75,7 @@ func UnzipHandler(zipName, zipPath, zipDestination string) bool {
 
 		if err != nil {
 			fmt.Println("there was an error copying a file content >>", err)
-			return true
+			return false
 		}
 
 	}
