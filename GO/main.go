@@ -18,7 +18,7 @@ func main() {
 	fmt.Println("server starting at port 3002")
 	minioClinet := service.NewS3ClintStore()
 
-	http.HandleFunc("/test", HandelTestReqeust)
+	http.HandleFunc("/test2", HandelTestReqeust)
 	http.HandleFunc("/testIO", minioClinet.DownloadFileFromMinIO)
 
 	err := http.ListenAndServe(":3002", nil)

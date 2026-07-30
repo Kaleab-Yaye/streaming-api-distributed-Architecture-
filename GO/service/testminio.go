@@ -49,16 +49,19 @@ func (s *S3ClintStore) DownloadFileFromMinIO(w http.ResponseWriter, r *http.Requ
 		return
 
 	}
-	downloadpath := "Raw_Download"
-	downloadpathFilePath := filepath.Join(".", downloadpath)
-	err = os.MkdirAll(downloadpathFilePath, os.ModePerm)
+	rawDownloadFolder := "Raw_Download"
+	downloaderName := downloadRequest.VidId
+	rawDownloadFolderPath := filepath.Join(".", rawDownloadFolder)
+	err = os.MkdirAll(rawDownloadFolderPath, os.ModePerm)
+	downloadedFilePath := filepath.Join(".", rawDownloadFolder, downloaderName)
+
 	if err != nil {
 		fmt.Println("there was an error creating the download folder")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	err = s.MinioClint.FGetObject(context.Background(), downloadRequest.Bucket, downloadRequest.VidId, downloadpathFilePath, minio.GetObjectOptions{})
+	err = s.MinioClint.FGetObject(context.Background(), downloadRequest.Bucket, downloadRequest.VidId, downloadedFilePath, minio.GetObjectOptions{})
 	if err != nil {
 		fmt.Println("there was an error in downlaoding the file", err)
 		w.WriteHeader(http.StatusInternalServerError)
