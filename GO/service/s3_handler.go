@@ -11,6 +11,9 @@ import (
 
 	"GO/DTOs"
 
+	"errors"
+	"strconv"
+
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
@@ -19,12 +22,25 @@ type S3ClintStore struct {
 	MinioClint *minio.Client
 }
 
-func NewS3ClintStore() *S3ClintStore {
+func NewS3ClintStore() (*S3ClintStore, error) {
 	// all this shit will have to be/will be an enviroment variable just testing stuff out
-	endpoint := "localhost:9000"
-	accessKeyID := "ktadmin"
-	secretAccessKey := "12345678"
-	useSSL := false
+	// it is now
+	endpoint := os.Getenv("END_POINT")
+	accessKeyID := os.Getenv("ACCESS_kEY")
+	secretAccessKey := os.Getenv("SECRET_ACCESS_KEY")
+	rawBoolValueFromEnv := os.Getenv("SSL_USE")
+	useSSL, err := strconv.ParseBool(rawBoolValueFromEnv)
+
+	if endpoint == "" || accessKeyID == "" || secretAccessKey == "" || rawBoolValueFromEnv == "" {
+
+		return nil, errors.New("could't extract one or more env variables to setup the clinet")
+	}
+
+	if err != nil {
+		fmt.Println(" there was an error getting the bool value from the env")
+		return nil, err
+
+	}
 
 	MinioClint, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
@@ -33,15 +49,20 @@ func NewS3ClintStore() *S3ClintStore {
 
 	if err != nil {
 		fmt.Print("there was an error with creating the s3 Cinet")
+		return nil, err
 	}
 
 	return &S3ClintStore{
 		MinioClint: MinioClint,
-	}
+	}, nil
 
 }
 func (s *S3ClintStore) DownloadFileFromMinIO(w http.ResponseWriter, r *http.Request) {
 	var downloadRequest DTOs.DownloadFile
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
 	err := json.NewDecoder(r.Body).Decode(&downloadRequest)
 	if err != nil {
 		fmt.Println("there was an error decoding the reqeust")
@@ -81,7 +102,7 @@ func (s *S3ClintStore) DownloadFileFromMinIO(w http.ResponseWriter, r *http.Requ
 	}
 
 	err = os.RemoveAll(downloadedFilePath)
-	if err!=nil{
+	if err != nil {
 		fmt.Println("there was an error removing the raw downloaded file")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
