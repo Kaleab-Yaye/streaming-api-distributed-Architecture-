@@ -1,0 +1,20 @@
+services:
+  go-node-stand-alone:
+    build:
+      context: ..
+      dockerfile: ../Docker/GO_NODE_DOCKER_FILES/DockerFile.gonode
+    container_name: go_node_stand_alone
+    image: go-node-image
+    ports:
+      - "3002:3002"
+    environment:
+      END_POINT: "host.docker.internal:9000" #has to be changed on a prod, to the acutll ip adress of the s3 server
+      ACCESS_kEY: "ktadmin"
+      SECRET_ACCESS_KEY: "12345678"
+      SSL_USE: "false"
+    volumes:
+      - go_node_store:/stream
+
+
+volumes:
+  go_node_store:

@@ -39,4 +39,5 @@ build/
 ### raw downloaded files while downloading and unziping ####
 /GO/Raw_Download/
 /GO/unzipped/
+/GO/go-stream-node
 
