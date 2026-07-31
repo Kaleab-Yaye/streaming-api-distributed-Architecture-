@@ -80,7 +80,7 @@ func (s *S3ClintStore) DownloadFileFromMinIO(w http.ResponseWriter, r *http.Requ
 	downloadedFilePath := filepath.Join(rawDownloadFolder, downloaderName)
 
 	_, err = os.Stat(unzippedPath)
-	if os.IsNotExist(err) {
+	if !os.IsNotExist(err) {
 		fmt.Println(" the file is already proccessed and ready for streaming")
 		return
 	}
