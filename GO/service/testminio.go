@@ -80,6 +80,14 @@ func (s *S3ClintStore) DownloadFileFromMinIO(w http.ResponseWriter, r *http.Requ
 
 	}
 
+	err = os.RemoveAll(downloadedFilePath)
+	if err!=nil{
+		fmt.Println("there was an error removing the raw downloaded file")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+
+	}
+
 	fmt.Println("all done")
 	w.WriteHeader(http.StatusOK)
 	return
