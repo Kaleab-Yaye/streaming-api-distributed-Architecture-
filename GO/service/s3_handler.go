@@ -72,10 +72,18 @@ func (s *S3ClintStore) DownloadFileFromMinIO(w http.ResponseWriter, r *http.Requ
 
 	}
 	rawDownloadFolder := "Raw_Download"
+	unzipedPath := filepath.Join(".", rawDownloadFolder, downloadRequest.VidId) // gonna use this to check if the file is already donwlaoded before trying to pull it from and s3 and unziping it
+
 	downloaderName := downloadRequest.VidId
 	rawDownloadFolderPath := filepath.Join(".", rawDownloadFolder)
 	err = os.MkdirAll(rawDownloadFolderPath, os.ModePerm)
 	downloadedFilePath := filepath.Join(".", rawDownloadFolder, downloaderName)
+
+	_, err = os.Stat(unzipedPath)
+	if os.IsNotExist(err) {
+		fmt.Println(" the file is already proccessed and ready for streaming")
+		return
+	}
 
 	if err != nil {
 		fmt.Println("there was an error creating the download folder")
