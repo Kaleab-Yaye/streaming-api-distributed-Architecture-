@@ -71,15 +71,15 @@ func (s *S3ClintStore) DownloadFileFromMinIO(w http.ResponseWriter, r *http.Requ
 		return
 
 	}
-	rawDownloadFolder := "Raw_Download"
-	unzipedPath := filepath.Join(".", rawDownloadFolder, downloadRequest.VidId) // gonna use this to check if the file is already donwlaoded before trying to pull it from and s3 and unziping it
-
+	rawDownloadFolder := "/stream/raw_download"
+	unzippedFolder := "/stream/unzipped"
+	unzippedPath := filepath.Join(unzippedFolder, downloadRequest.VidId) // gonna use this to check if the file is already donwlaoded before trying to pull it from and s3 and unziping it
 	downloaderName := downloadRequest.VidId
-	rawDownloadFolderPath := filepath.Join(".", rawDownloadFolder)
+	rawDownloadFolderPath := rawDownloadFolder
 	err = os.MkdirAll(rawDownloadFolderPath, os.ModePerm)
-	downloadedFilePath := filepath.Join(".", rawDownloadFolder, downloaderName)
+	downloadedFilePath := filepath.Join(rawDownloadFolder, downloaderName)
 
-	_, err = os.Stat(unzipedPath)
+	_, err = os.Stat(unzippedPath)
 	if os.IsNotExist(err) {
 		fmt.Println(" the file is already proccessed and ready for streaming")
 		return
@@ -101,7 +101,7 @@ func (s *S3ClintStore) DownloadFileFromMinIO(w http.ResponseWriter, r *http.Requ
 
 	// we gotta unzip it
 
-	result := utils.UnzipHandler(downloadRequest.VidId, downloadedFilePath, filepath.Join(".", "unzipped"))
+	result := utils.UnzipHandler(downloadRequest.VidId, downloadedFilePath, unzippedFolder)
 
 	if result != true {
 		w.WriteHeader(http.StatusInternalServerError)

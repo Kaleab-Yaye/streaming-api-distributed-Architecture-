@@ -92,6 +92,13 @@ services:
     image: go-node-image
     ports:
       - "3002:3002"
+    environment:
+      END_POINT: "localhost:9000"
+      ACCESS_kEY: "ktadmin"
+      SECRET_ACCESS_KEY: "12345678"
+      SSL_USE: "false"
+    volumes:
+      - go_node_store:/stream
 
 
 
@@ -161,3 +168,4 @@ volumes:
   temp_upload:
   s3_store:
   stream_store:
+  go_node_store:
