@@ -79,15 +79,15 @@ func (s *S3ClintStore) DownloadFileFromMinIO(w http.ResponseWriter, r *http.Requ
 	err = os.MkdirAll(rawDownloadFolderPath, os.ModePerm)
 	downloadedFilePath := filepath.Join(rawDownloadFolder, downloaderName)
 
-	_, err = os.Stat(unzippedPath)
-	if !os.IsNotExist(err) {
-		fmt.Println(" the file is already proccessed and ready for streaming")
-		return
-	}
-
 	if err != nil {
 		fmt.Println("there was an error creating the download folder")
 		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_, err = os.Stat(unzippedPath)
+	if !os.IsNotExist(err) {
+		fmt.Println(" the file is already proccessed and ready for streaming")
 		return
 	}
 
