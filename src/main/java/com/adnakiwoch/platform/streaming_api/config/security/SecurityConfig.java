@@ -32,8 +32,8 @@ public class SecurityConfig {
                 auth // this is how we build the requist chain to make sure that some parts are
                     // allow all some parts are allow all
                     .requestMatchers(
-                        "/api/v1/health", "/api/v1/user/new_user",
-
+                        "/api/v1/health",
+                        "/api/v1/user/new_user",
                         "/api/v1/user/sign_in",
                         "/actuator/**",
                         "api/hooks/tusd/upload",

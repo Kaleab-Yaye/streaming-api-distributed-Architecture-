@@ -24,6 +24,7 @@ services:
       - go-stream-node
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - go_node_store:/vid_store/
 
 volumes:
   go_node_store:

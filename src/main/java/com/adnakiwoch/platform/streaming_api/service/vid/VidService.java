@@ -2,6 +2,7 @@ package com.adnakiwoch.platform.streaming_api.service.vid;
 
 import com.adnakiwoch.platform.streaming_api.domain.Vid;
 import com.adnakiwoch.platform.streaming_api.dto.header.GetVidHeader;
+import com.adnakiwoch.platform.streaming_api.dto.request.outgoing.stream.PrepareVidForStreamRequest;
 import com.adnakiwoch.platform.streaming_api.dto.request.vid.WatchVIdRequest;
 import com.adnakiwoch.platform.streaming_api.dto.response.vid.GetAvailableVid;
 import com.adnakiwoch.platform.streaming_api.dto.response.vid.VidDtoForGetAvailableVidResponse;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -61,14 +63,20 @@ public class VidService {
       log.info("vid location is: {}", vidLocation);
       log.info("segmentNumber is: {}", segmentNumber);
 
-      UUID vidId = vidServiceUtil.getCatchableVidIDFromVidLocation(vidLocation);
+      UUID vidId =
+          vidServiceUtil.getCatchableVidIDFromVidLocation(
+              vidLocation); // the clinet wont send the vid id but the vid locaiton that waas given
+      // to the vidoeo when it was uploaded
 
       GetVidHeader getVidHeader = new GetVidHeader(vidId, currentFrame);
 
       return watchService.watchVidAuthHandler(getVidHeader, userDetails);
     }
 
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok()
+        .build(); // this is neededx becouse when the video is being server the player is not only
+    // going to ask about .ts files but is gonna need to the master play lists and
+    // other stuff
   }
 
   public ResponseEntity<WatchVidResponse> watchVid(
@@ -95,10 +103,20 @@ public class VidService {
     ResponseEntity<String> response =
         restClient
             .post()
-            .uri("http://stream-node:8000/download/new_vid/" + vid.getEncodedLocation())
+            .uri(
+                "http://host.docker.internal:4001/stream/node/prepare") // NOTE: here it will become
+            // the Go end point, and we
+            // will have to move it to
+            // env var
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(new PrepareVidForStreamRequest(vid.getEncodedLocation(), "encoded"))
             .retrieve()
             .toEntity(String.class);
-    int statusCode = response.getStatusCode().value();
+    int statusCode =
+        response
+            .getStatusCode()
+            .value(); // NOTE: Go end points need an update to give the propor response status code
+    // for the state machine to work on
     log.info(
         "satus code of the requst made to streaming_node is {}", response.getStatusCode().value());
 
