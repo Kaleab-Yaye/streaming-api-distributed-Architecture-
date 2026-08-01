@@ -19,7 +19,7 @@ services:
     image: nginx:alpine
     container_name: streaming_node_proxy
     ports:
-      - "8080:8080" #for  local dev i have made this to be a different port number than 80, will be 80 on prod
+      - "4001:4001" #for  local dev i have made this to be a different port number than 80, will be 80 on prod
     depends_on:
       - go-stream-node
     volumes:
