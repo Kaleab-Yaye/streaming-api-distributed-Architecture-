@@ -22,8 +22,8 @@ func main() {
 		return
 	}
 
-	http.HandleFunc("/test2", HandelTestReqeust)
-	http.HandleFunc("/testIO", minioClinet.DownloadFileFromMinIO)
+	http.HandleFunc("stream/node/test2", HandelTestReqeust)
+	http.HandleFunc("stream/node/testIO", minioClinet.DownloadFileFromMinIO)
 
 	err = http.ListenAndServe(":3002", nil)
 	if err != nil {

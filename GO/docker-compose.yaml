@@ -1,9 +1,9 @@
 services:
-  go-node-stand-alone:
+  go-stream-node:
     build:
       context: ..
       dockerfile: ../Docker/GO_NODE_DOCKER_FILES/DockerFile.gonode
-    container_name: go_node_stand_alone
+    container_name: go_stream_node
     image: go-node-image
     ports:
       - "3002:3002"
@@ -15,6 +15,15 @@ services:
     volumes:
       - go_node_store:/stream
 
+  nginx:
+    image: nginx:alpine
+    container_name: streaming_node_proxy
+    ports:
+      - "8080:8080" #for  local dev i have made this to be a different port number than 80, will be 80 on prod
+    depends_on:
+      - go-stream-node
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
 
 volumes:
   go_node_store:
