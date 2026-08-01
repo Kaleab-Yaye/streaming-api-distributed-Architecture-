@@ -2,7 +2,7 @@ services:
   go-stream-node:
     build:
       context: ..
-      dockerfile: ../Docker/GO_NODE_DOCKER_FILES/DockerFile.gonode
+      dockerfile: /Docker/GO_NODE_DOCKER_FILES/DockerFile.gonode
     container_name: go_stream_node
     image: go-node-image
     ports:
