@@ -47,7 +47,7 @@ public class VidService {
   public ResponseEntity<HttpStatus> watchVidAuthOrchestrator(
       HttpServletRequest request, UserDetails userDetails) {
 
-    String uri = request.getHeader("request_uri");
+    String uri = request.getHeader("request-uri");
     java.lang.Double currentFrame = Double.parseDouble(request.getHeader("current-frame"));
     log.info("the put frame is {}", currentFrame);
     if (uri.endsWith(".ts")) {
