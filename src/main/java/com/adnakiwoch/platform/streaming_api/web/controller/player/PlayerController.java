@@ -29,9 +29,11 @@ public class PlayerController {
       HttpServletRequest request, @AuthenticationPrincipal UserDetails userDetails) {
     log.info("auth trigered");
     log.info(
-        "recived the uri{}, and current frame reqeust of {}",
-        request.getHeader("request_uri"),
-        request.getHeader("current_frame"));
+        "recived the uri {}, and current frame reqeust of {}, and the autorization token of {}",
+        request.getHeader("request-uri"),
+        request.getHeader("current-frame"),
+        request.getHeader("Authorization"));
+
     return vidService.watchVidAuthOrchestrator(request, userDetails);
   }
 }
