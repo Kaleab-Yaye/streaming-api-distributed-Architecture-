@@ -100,6 +100,8 @@ public class VidService {
           .body(new WatchVidResponse(vid.getEncodedLocation(), currentFrame));
     }
 
+    log.info("goign to make prepare reqeust to the streaming node");
+
     ResponseEntity<String> response =
         restClient
             .post()
