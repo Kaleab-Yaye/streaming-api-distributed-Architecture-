@@ -119,6 +119,10 @@ func (s *S3ClintStore) DownloadFileFromMinIO(w http.ResponseWriter, r *http.Requ
 
 	fmt.Println("all done")
 	w.WriteHeader(http.StatusOK)
+
+	http.pos
 	return
+
+
 
 }
