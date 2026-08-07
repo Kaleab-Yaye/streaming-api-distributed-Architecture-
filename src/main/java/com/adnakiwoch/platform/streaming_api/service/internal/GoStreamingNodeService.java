@@ -21,8 +21,8 @@ public class GoStreamingNodeService {
     public ResponseEntity<HttpStatus> liveNodeHandler (StreamingNodeRegistRequest streamingNodeRegistRequest
     ){
         StreamingNode newStreamingNode = new StreamingNode();
-        newStreamingNode.setIpAddr(streamingNodeRegistRequest.ipAddr());
-        newStreamingNode.setPortNumber(streamingNodeRegistRequest.portNumber())
+        newStreamingNode.setIpAddr(streamingNodeRegistRequest.ip_addr());
+        newStreamingNode.setPortNumber(streamingNodeRegistRequest.port_number())
         ;
         newStreamingNode.setUpStat(true);
 
