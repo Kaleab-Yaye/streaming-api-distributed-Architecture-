@@ -24,12 +24,10 @@ public class GoStreamingNodeService {
         streamingNodeRepo.getStreamingNodeByIpAddr(streamingNodeRegistRequest.ip_addr());
 
     if (optionalStreamingNode.isPresent()) {
-        if(optionalStreamingNode.get().isUpStat()){
+      if (optionalStreamingNode.get().isUpStat()) {
 
-            return ResponseEntity.ok().build();
-        }
-
-
+        return ResponseEntity.ok().build();
+      }
     }
 
     StreamingNode newStreamingNode = new StreamingNode();

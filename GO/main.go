@@ -36,7 +36,7 @@ func main() {
 
 			err, stat = service.RegistNodeHandler(port_number)
 
-			if stat != true {
+			if stat == true {
 
 				break
 
