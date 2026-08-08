@@ -5,9 +5,11 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import software.amazon.awssdk.core.internal.http.StreamManagingStage;
 
 @Repository
 public interface StreamingNodeRepo extends JpaRepository<StreamingNode, UUID> {
 
   Optional<StreamingNode> getStreamingNodeByIpAddr(String ipAddr);
+  Optional<StreamingNode> getStreamingNodeById(UUID nodeId);
 }

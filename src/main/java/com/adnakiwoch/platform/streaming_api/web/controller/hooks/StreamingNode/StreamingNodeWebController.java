@@ -25,6 +25,6 @@ public class StreamingNodeWebController {
   ResponseEntity<HttpStatus> registNewStreamingNodeController(
       @RequestBody StreamingNodeRegistRequest streamingNodeRegistRequest) {
 
-    return goStreamingNodeService.liveNodeHandler(streamingNodeRegistRequest);
+    return goStreamingNodeService.newStreamingNodeHandler(streamingNodeRegistRequest);
   }
 }
