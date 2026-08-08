@@ -32,7 +32,9 @@ func RegistNodeHandler(port_num string) (error, bool) {
 		return err, false
 	}
 
-	node_clinet := http.Client{
+	request.Header.Add("Content-Type", "application/json")
+
+	node_clinet := &http.Client{
 		Timeout: 10 * time.Second,
 	}
 
@@ -48,7 +50,7 @@ func RegistNodeHandler(port_num string) (error, bool) {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		fmt.Println("central server is not letting this node to registor, or can't be reached")
+		fmt.Println("central server is not letting this node to registor, or can't be reached, the Status code is ", res.StatusCode)
 		return nil, false
 	}
 

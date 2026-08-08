@@ -23,5 +23,5 @@ public class StreamingNode {
   private @Getter @Setter boolean upStat;
 
   @Column(name = "updated_at")
-  private @Getter @Setter OffsetDateTime updatedAt;
+  private @Getter @Setter OffsetDateTime updatedAt = OffsetDateTime.now();
 }

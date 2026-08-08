@@ -3,6 +3,8 @@ package com.adnakiwoch.platform.streaming_api.service.internal;
 import com.adnakiwoch.platform.streaming_api.domain.StreamingNode;
 import com.adnakiwoch.platform.streaming_api.dto.request.StreamingNode.StreamingNodeRegistRequest;
 import com.adnakiwoch.platform.streaming_api.repository.StreamingNodeRepo;
+
+import java.sql.Time;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,6 +36,7 @@ public class GoStreamingNodeService {
     newStreamingNode.setIpAddr(streamingNodeRegistRequest.ip_addr());
     newStreamingNode.setPortNumber(streamingNodeRegistRequest.port_number());
     newStreamingNode.setUpStat(true);
+
 
     // lets handel if the server tries to register twice, or has crashed before and want's to regist
     // again
