@@ -12,6 +12,8 @@ services:
       ACCESS_kEY: "ktadmin"
       SECRET_ACCESS_KEY: "12345678"
       SSL_USE: "false"
+      PORT_NUM: "4001"
+      CENTRAL_SERVER: "http://host.docker.internal:80"
     volumes:
       - go_node_store:/stream
 

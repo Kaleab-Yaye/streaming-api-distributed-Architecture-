@@ -38,7 +38,8 @@ public class SecurityConfig {
                         "/actuator/**",
                         "api/hooks/tusd/upload",
                         "/api/hooks/encode/**",
-                        "api/v1/player/vid/play", "/api/v1/encoder/regist/new")
+                        "api/v1/player/vid/play",
+                        "/api/v1/encoder/regist/new")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
