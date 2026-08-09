@@ -60,6 +60,8 @@ public class GoStreamingNodeService {
   public StreamingNode selectRandomNode() {
     int size = streamingNodesArray.getArraysSize();
     Random random = new Random();
+    // we might have not handled the wat if the list is empety thing
+      // now at startup the carch should be prebuilt before other stuff[
     UUID random_uuid = streamingNodesArray.getElementAtIndex(random.nextInt(size));
     Optional<StreamingNode> optionalStreamingNode =
         streamingNodeRepo.getStreamingNodeById(random_uuid);
@@ -83,6 +85,21 @@ public class GoStreamingNodeService {
     // return the build ip addr
 
     return selectedStreamingNode.getIpAddr() + ":" + selectedStreamingNode.getPortNumber();
+  }
+
+  @Cacheable(value = "node_id_to_port_addr", key = "#nodeid")
+  public String getPortAddr(UUID nodId) {
+
+    Optional<StreamingNode> optionalRandStreamingNode = streamingNodeRepo.findById(nodId);
+
+    StreamingNode selectedStreamingNode =
+        optionalRandStreamingNode.orElseThrow(
+            () ->
+                new ResourceNotFoundException("" + "could't find the vid with the ID {}" + nodId));
+
+    // return the build ip addr
+
+    return selectedStreamingNode.getIpAddr();
   }
 
   public void removeIdFromList(UUID nodeId) {

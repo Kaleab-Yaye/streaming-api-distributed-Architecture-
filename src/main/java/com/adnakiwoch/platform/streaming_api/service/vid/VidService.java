@@ -141,14 +141,21 @@ public class VidService {
 
     UUID nodeId = vidStoreService.getNodIdAssociatedWithVidId(vid.getId());
     String nodeEndPoint = goStreamingNodeService.getIpAndPortAddr(nodeId);
+    // so the thing this end point will work find for prod but forr local dev,i woudl ahve to create
+    // another uri for dev part only wher
+    //
     String uri = nodeEndPoint + "/stream/v1/node/health";
+    String uriLocalDev =
+        "http://host.docker.internal:"
+            + goStreamingNodeService.getPortAddr(nodeId)
+            + "/stream/v1/node/health";
 
     // making are you ok request now to it
 
     ResponseEntity<String> response =
         restClient
             .post()
-            .uri(uri) //
+            .uri(uriLocalDev) //
             .retrieve()
             .toEntity(String.class);
     int statusCode = response.getStatusCode().value();
@@ -179,6 +186,7 @@ public class VidService {
     cacheManager.getCache("vid_id_to_node").evict(vid.getId());
     log.info("evicting the node id to adress catch with the key {}", streamingNodeId);
     cacheManager.getCache("nod_id_to_addr").evict(streamingNodeId);
+    cacheManager.getCache("node_id_to_port_addr").evict(streamingNodeId);
 
     return handleWhenVidIsNotOnAnyNode(vid, userId, currentFrame);
   }
@@ -214,13 +222,17 @@ public class VidService {
     log.info("the machine that is gonnna handle it has addr of {}", getIPAndPorAddressOFChosenMech);
 
     String uri = getIPAndPorAddressOFChosenMech + "/stream/node/prepare";
+    String uriLocalDev =
+        "http://host.docker.internal:"
+            + goStreamingNodeService.getPortAddr(selectedNode.getId())
+            + "/stream/node/prepare";
 
     // shoudl we add a s
 
     ResponseEntity<String> response =
         restClient
             .post()
-            .uri(uri) // NOTE: here it will become
+            .uri(uriLocalDev)
             // the Go end point, and we
             // will have to move it to
             // env var

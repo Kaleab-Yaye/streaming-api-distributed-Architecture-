@@ -29,7 +29,7 @@ public class VidStoreService {
     vidStoreRepo.save(vidStoreLocation);
   }
 
-  @Cacheable(value = "vid_id_to_node", key = "#vid")
+  @Cacheable(value = "vid_id_to_node", key = "#vidId")
   public UUID getNodIdAssociatedWithVidId(UUID vidId) {
     Optional<VidStoreLocation> optionalVidStoreLocation =
         vidStoreRepo.getVidStoreLocationByVidId(vidId);

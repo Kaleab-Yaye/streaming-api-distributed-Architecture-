@@ -15,7 +15,7 @@ public class GenericExceptionHandler {
   public ResponseEntity<ProblemDetail> handleAllExceptions(Exception ex) {
     ProblemDetail problemDetail =
         ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Our bad will be fixed");
-    log.warn(ex.getMessage());
+    log.warn(ex.getMessage(), ex.getCause());
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problemDetail);
   }
 }

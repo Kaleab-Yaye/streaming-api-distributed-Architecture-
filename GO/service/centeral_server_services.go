@@ -13,7 +13,7 @@ import (
 func RegistNodeHandler(port_num string) (error, bool) {
 
 	request_body := DTOs.Regist_node{
-		Ip_addr:     "Localhost", // must be in a way that it dynamically looks up the machins ip addr
+		Ip_addr:     "localhost", // must be in a way that it dynamically looks up the machins ip addr
 		Port_number: port_num,
 	}
 
