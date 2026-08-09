@@ -12,6 +12,7 @@ import java.util.Random;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class GoStreamingNodeService {
+public class GoStreamingNodeService implements CommandLineRunner {
   @Autowired private StreamingNodeRepo streamingNodeRepo;
   @Autowired private StreamingNodesArray streamingNodesArray;
 
@@ -121,5 +122,27 @@ public class GoStreamingNodeService {
         .orElseThrow(
             () -> new ResourceNotFoundException("there was no node with the Id of " + nodeId))
         .getVidStoreLocations();
+  }
+  @Override
+  public void run(String... args) throws Exception{
+      List<StreamingNode> listStreamingNodes = streamingNodeRepo.getStreamingNodeByUpStat(true);
+      if(!listStreamingNodes.isEmpty()){
+
+          for(StreamingNode streamingNode: listStreamingNodes){
+
+              streamingNodesArray.addElementToList(streamingNode.getId());
+
+          }
+      }
+
+
+
+
+
+  }
+
+
+  public int returnSizeOfTheArray(){
+      return streamingNodesArray.getArraysSize();
   }
 }
