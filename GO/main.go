@@ -66,7 +66,7 @@ func main() {
 	http.HandleFunc("/stream/node/prepare", minioClinet.DownloadFileFromMinIO)
 	http.HandleFunc("/stream/v1/node/health", service.HandelHealthCheck)
 
-	err = http.ListenAndServe(":"+port_number, nil) // should probably move the port num to env
+	err = http.ListenAndServe(":"+"3002", nil) // should probably move the port num to env
 	if err != nil {
 		fmt.Println("there was an error with attachign the server to the port")
 
