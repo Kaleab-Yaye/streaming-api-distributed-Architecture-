@@ -100,7 +100,7 @@ public class GoStreamingNodeService implements CommandLineRunner {
 
     // return the build ip addr
 
-    return selectedStreamingNode.getIpAddr();
+    return String.valueOf(selectedStreamingNode.getPortNumber());
   }
 
   public void removeIdFromList(UUID nodeId) {

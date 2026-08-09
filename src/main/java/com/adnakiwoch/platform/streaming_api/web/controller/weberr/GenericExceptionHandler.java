@@ -1,5 +1,5 @@
 package com.adnakiwoch.platform.streaming_api.web.controller.weberr;
-
+/*
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -19,3 +19,5 @@ public class GenericExceptionHandler {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problemDetail);
   }
 }
+
+ */

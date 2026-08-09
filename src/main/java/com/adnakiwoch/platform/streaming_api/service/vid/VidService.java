@@ -232,7 +232,7 @@ public class VidService {
             + goStreamingNodeService.getPortAddr(selectedNode.getId())
             + "/stream/node/prepare";
 
-    // shoudl we add a s
+    log.info("the request to be made as the uri of {}", uriLocalDev);
 
     ResponseEntity<String> response =
         restClient
