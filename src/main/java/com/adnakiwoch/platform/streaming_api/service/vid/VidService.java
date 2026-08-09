@@ -214,13 +214,10 @@ public class VidService {
   private ResponseEntity<WatchVidResponse> handleWhenVidIsNotOnAnyNode(
       Vid vid, UUID userId, Double currentFrame) {
 
+    if (goStreamingNodeService.returnSizeOfTheArray() == 0) {
 
-    if(goStreamingNodeService.returnSizeOfTheArray()==0) {
-
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
-
+      return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
     }
-
 
     StreamingNode selectedNode = goStreamingNodeService.selectRandomNode();
 

@@ -12,5 +12,4 @@ public class StreamingApiApplication {
   public static void main(String[] args) {
     SpringApplication.run(StreamingApiApplication.class, args);
   }
-
 }

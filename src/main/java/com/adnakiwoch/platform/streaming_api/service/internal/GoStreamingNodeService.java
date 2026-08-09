@@ -62,7 +62,7 @@ public class GoStreamingNodeService implements CommandLineRunner {
     int size = streamingNodesArray.getArraysSize();
     Random random = new Random();
     // we might have not handled the wat if the list is empety thing
-      // now at startup the carch should be prebuilt before other stuff[
+    // now at startup the carch should be prebuilt before other stuff[
     UUID random_uuid = streamingNodesArray.getElementAtIndex(random.nextInt(size));
     Optional<StreamingNode> optionalStreamingNode =
         streamingNodeRepo.getStreamingNodeById(random_uuid);
@@ -73,7 +73,7 @@ public class GoStreamingNodeService implements CommandLineRunner {
                 "coud't find the vid  with the specifed id " + random_uuid)); // returning
   }
 
-  @Cacheable(value = "nod_id_to_addr", key = "#nodid")
+  @Cacheable(value = "nod_id_to_addr", key = "#nodId")
   public String getIpAndPortAddr(UUID nodId) {
 
     Optional<StreamingNode> optionalRandStreamingNode = streamingNodeRepo.findById(nodId);
@@ -88,7 +88,7 @@ public class GoStreamingNodeService implements CommandLineRunner {
     return selectedStreamingNode.getIpAddr() + ":" + selectedStreamingNode.getPortNumber();
   }
 
-  @Cacheable(value = "node_id_to_port_addr", key = "#nodeid")
+  @Cacheable(value = "node_id_to_port_addr", key = "#nodId")
   public String getPortAddr(UUID nodId) {
 
     Optional<StreamingNode> optionalRandStreamingNode = streamingNodeRepo.findById(nodId);
@@ -123,26 +123,20 @@ public class GoStreamingNodeService implements CommandLineRunner {
             () -> new ResourceNotFoundException("there was no node with the Id of " + nodeId))
         .getVidStoreLocations();
   }
+
   @Override
-  public void run(String... args) throws Exception{
-      List<StreamingNode> listStreamingNodes = streamingNodeRepo.getStreamingNodeByUpStat(true);
-      if(!listStreamingNodes.isEmpty()){
+  public void run(String... args) throws Exception {
+    List<StreamingNode> listStreamingNodes = streamingNodeRepo.getStreamingNodeByUpStat(true);
+    if (!listStreamingNodes.isEmpty()) {
 
-          for(StreamingNode streamingNode: listStreamingNodes){
+      for (StreamingNode streamingNode : listStreamingNodes) {
 
-              streamingNodesArray.addElementToList(streamingNode.getId());
-
-          }
+        streamingNodesArray.addElementToList(streamingNode.getId());
       }
-
-
-
-
-
+    }
   }
 
-
-  public int returnSizeOfTheArray(){
-      return streamingNodesArray.getArraysSize();
+  public int returnSizeOfTheArray() {
+    return streamingNodesArray.getArraysSize();
   }
 }

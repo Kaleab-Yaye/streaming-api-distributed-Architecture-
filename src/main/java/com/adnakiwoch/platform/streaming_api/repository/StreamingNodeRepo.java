@@ -1,7 +1,6 @@
 package com.adnakiwoch.platform.streaming_api.repository;
 
 import com.adnakiwoch.platform.streaming_api.domain.StreamingNode;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,5 +13,6 @@ public interface StreamingNodeRepo extends JpaRepository<StreamingNode, UUID> {
   Optional<StreamingNode> getStreamingNodeByIpAddr(String ipAddr);
 
   Optional<StreamingNode> getStreamingNodeById(UUID nodeId);
- List<StreamingNode> getStreamingNodeByUpStat(boolean stat);
+
+  List<StreamingNode> getStreamingNodeByUpStat(boolean stat);
 }
