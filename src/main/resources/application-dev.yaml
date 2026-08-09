@@ -23,6 +23,9 @@ spring:
       - watch_id # is catching the watch id along with the latest segment when user plays a vid(Map<vidId, LatestSegment>)
       - vid_id # is catching vid_id and vid_location as the key (Map<vidLocation, UUID vidId>)
       - encode_id
+      - node_id_to_port_addr #is caching the mapping between node and port address
+      - nod_id_to_addr #is cahing the mapping between node's Id and ip + port address
+      - vid_id_to_node # is caching the mapping between a vid's id and the node's id that is storing the vid
     caffeine:
       spec: expireAfterWrite=60m
 
