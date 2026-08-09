@@ -61,3 +61,7 @@ func RegistNodeHandler(port_num string) (error, bool) {
 	// and also how many times should we retry if the central server is not reachable?
 
 }
+
+func HandelHealthCheck(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}

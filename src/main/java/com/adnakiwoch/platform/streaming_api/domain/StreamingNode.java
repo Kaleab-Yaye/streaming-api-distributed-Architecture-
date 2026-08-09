@@ -2,6 +2,7 @@ package com.adnakiwoch.platform.streaming_api.domain;
 
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,4 +25,7 @@ public class StreamingNode {
 
   @Column(name = "updated_at")
   private @Getter @Setter OffsetDateTime updatedAt = OffsetDateTime.now();
+
+  @OneToMany(mappedBy = "streamingNode")
+  private @Getter @Setter List<VidStoreLocation> vidStoreLocations;
 }

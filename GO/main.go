@@ -64,6 +64,7 @@ func main() {
 
 	http.HandleFunc("/stream/node/test2", HandelTestReqeust)
 	http.HandleFunc("/stream/node/prepare", minioClinet.DownloadFileFromMinIO)
+	http.HandleFunc("/stream/v1/node/health", service.HandelHealthCheck)
 
 	err = http.ListenAndServe(":"+port_number, nil) // should probably move the port num to env
 	if err != nil {
