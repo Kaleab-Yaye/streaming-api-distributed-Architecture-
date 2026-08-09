@@ -7,10 +7,13 @@ import com.adnakiwoch.platform.streaming_api.exception.resource.ResourceNotFound
 import com.adnakiwoch.platform.streaming_api.repository.VidStoreRepo;
 import java.util.Optional;
 import java.util.UUID;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class VidStoreService {
   private final VidStoreRepo vidStoreRepo;
@@ -31,6 +34,8 @@ public class VidStoreService {
 
   @Cacheable(value = "vid_id_to_node", key = "#vidId")
   public UUID getNodIdAssociatedWithVidId(UUID vidId) {
+
+      log.info("NEW: the nod_id_to_port number is passed, if you see more than you should the cach is broken");
     Optional<VidStoreLocation> optionalVidStoreLocation =
         vidStoreRepo.getVidStoreLocationByVidId(vidId);
     return optionalVidStoreLocation

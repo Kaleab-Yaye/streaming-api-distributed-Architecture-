@@ -76,6 +76,8 @@ public class GoStreamingNodeService implements CommandLineRunner {
   @Cacheable(value = "nod_id_to_addr", key = "#nodId")
   public String getIpAndPortAddr(UUID nodId) {
 
+      log.info("NEW: the nod_id_to_addr number is passed, if you see more than you should the cach is broken");
+
     Optional<StreamingNode> optionalRandStreamingNode = streamingNodeRepo.findById(nodId);
 
     StreamingNode selectedStreamingNode =
@@ -90,6 +92,8 @@ public class GoStreamingNodeService implements CommandLineRunner {
 
   @Cacheable(value = "node_id_to_port_addr", key = "#nodId")
   public String getPortAddr(UUID nodId) {
+
+      log.info("NEW: the nod_id_to_port number is passed, if you see more than you should the cach is broken");
 
     Optional<StreamingNode> optionalRandStreamingNode = streamingNodeRepo.findById(nodId);
 

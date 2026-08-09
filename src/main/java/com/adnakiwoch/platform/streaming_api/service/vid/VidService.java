@@ -173,6 +173,7 @@ public class VidService {
 
       return webResponseTobeGiven;
     }
+    log.info("NEW: server with the file is live and returning propor values back.");
     return ResponseEntity.status(HttpStatus.OK)
         .body(new WatchVidResponse(nodeEndPoint, vid.getEncodedLocation(), currentFrame));
   }
