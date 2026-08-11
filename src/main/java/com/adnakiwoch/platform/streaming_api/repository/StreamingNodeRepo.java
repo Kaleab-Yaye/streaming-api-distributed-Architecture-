@@ -12,7 +12,8 @@ public interface StreamingNodeRepo extends JpaRepository<StreamingNode, UUID> {
 
   Optional<StreamingNode> getStreamingNodeByIpAddr(String ipAddr);
 
-  Optional<StreamingNode> getStreamingNodeByIpAddrAndPortNumberAndUpStat(String ipAddr, int portNum, boolean stat);
+  Optional<StreamingNode> getStreamingNodeByIpAddrAndPortNumberAndUpStat(
+      String ipAddr, int portNum, boolean stat);
 
   Optional<StreamingNode> getStreamingNodeById(UUID nodeId);
 
