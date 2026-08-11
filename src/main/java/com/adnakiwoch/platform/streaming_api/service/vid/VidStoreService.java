@@ -47,10 +47,9 @@ public class VidStoreService {
         .getId();
   }
 
-
   @Transactional
   public void removeALlEntriesOFNode(UUID nodId) {
-      log.info("trying to remove all interies associated with the node that has id {}", nodId);
+    log.info("trying to remove all interies associated with the node that has id {}", nodId);
     vidStoreRepo.deleteVidStoreLocationByStreamingNodeId(nodId);
   }
 }

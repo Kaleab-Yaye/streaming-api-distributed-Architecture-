@@ -140,7 +140,9 @@ public class VidService {
       Vid vid, UUID userId, double currentFrame) {
 
     UUID nodeId = vidStoreService.getNodIdAssociatedWithVidId(vid.getId());
-    String nodeEndPoint = goStreamingNodeService.getIpAndPortAddr(nodeId); // this probably causing the non unique fetch but how?
+    String nodeEndPoint =
+        goStreamingNodeService.getIpAndPortAddr(
+            nodeId); // this probably causing the non unique fetch but how?
     // so the thing this end point will work find for prod but forr local dev,i woudl ahve to create
     // another uri for dev part only wher
     //
@@ -203,7 +205,7 @@ public class VidService {
   private ResponseEntity<WatchVidResponse> handleNodeFailerPrepareRequestedFileForStream(
       Vid vid, UUID userId, UUID streamingNodeId, Double currentFrame) {
     vid.setVidStat(VidStat.ENCODED);
-    goStreamingNodeService.removeIdFromList(vid.getId());
+    goStreamingNodeService.removeIdFromList(streamingNodeId); // how do you fuck up this bad, why do you fuck up this bad, how is this even possible, how do you remove a vidf rom a node list? why kal why is you dumb
     // also lets invalidate the catch that we holds the vid to node mapping
     log.info("evicting the catch with the key {}", vid.getId());
     cacheManager.getCache("vid_id_to_node").evict(vid.getId());
