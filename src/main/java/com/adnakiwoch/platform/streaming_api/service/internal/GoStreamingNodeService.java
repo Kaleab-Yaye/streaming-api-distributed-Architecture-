@@ -32,13 +32,12 @@ public class GoStreamingNodeService implements CommandLineRunner {
       StreamingNodeRegistRequest streamingNodeRegistRequest) {
 
     Optional<StreamingNode> optionalStreamingNode =
-        streamingNodeRepo.getStreamingNodeByIpAddr(streamingNodeRegistRequest.ip_addr());
+        streamingNodeRepo.getStreamingNodeByIpAddrAndPortNumberAndUpStat(streamingNodeRegistRequest.ip_addr(), streamingNodeRegistRequest.port_number(),true);
 
     if (optionalStreamingNode.isPresent()) {
-      if (optionalStreamingNode.get().isUpStat()) {
 
         return ResponseEntity.ok().build();
-      }
+
     }
 
     StreamingNode newStreamingNode = new StreamingNode();
