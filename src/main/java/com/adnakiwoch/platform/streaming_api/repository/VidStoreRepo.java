@@ -11,5 +11,5 @@ public interface VidStoreRepo extends JpaRepository<VidStoreLocation, UUID> {
 
   Optional<VidStoreLocation> getVidStoreLocationByVidId(UUID vidId);
 
-  void deleteVidStoreLocationByStreamingNodeId(UUID vidId);
+  void deleteVidStoreLocationByStreamingNodeId(UUID nodeId);
 }

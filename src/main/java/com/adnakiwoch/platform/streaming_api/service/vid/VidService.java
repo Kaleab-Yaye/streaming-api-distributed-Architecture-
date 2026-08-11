@@ -15,9 +15,6 @@ import com.adnakiwoch.platform.streaming_api.service.internal.GoStreamingNodeSer
 import com.adnakiwoch.platform.streaming_api.service.security.JwtService;
 import enums.VidStat;
 import jakarta.servlet.http.HttpServletRequest;
-
-import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
@@ -143,7 +140,7 @@ public class VidService {
       Vid vid, UUID userId, double currentFrame) {
 
     UUID nodeId = vidStoreService.getNodIdAssociatedWithVidId(vid.getId());
-    String nodeEndPoint = goStreamingNodeService.getIpAndPortAddr(nodeId);
+    String nodeEndPoint = goStreamingNodeService.getIpAndPortAddr(nodeId); // this probably causing the non unique fetch but how?
     // so the thing this end point will work find for prod but forr local dev,i woudl ahve to create
     // another uri for dev part only wher
     //
@@ -155,61 +152,52 @@ public class VidService {
 
     // making are you ok request now to it
 
+    // so here is the thing the ClosedChannle Exception is thrown when there is no server behind to
+    // talk to so, what should
+    // happen is we handel the exception and make the request
+    try {
+      ResponseEntity<String> response =
+          restClient
+              .post()
+              .uri(uriLocalDev) //
+              .retrieve()
+              .toEntity(String.class);
 
-// so here is the thing the ClosedChannle Exception is thrown when there is no server behind to talk to so, what should
-// happen is we handel the exception and make the request
-try {
-    ResponseEntity<String> response =
-            restClient
-                    .post()
-                    .uri(uriLocalDev) //
-                    .retrieve()
-                    .toEntity(String.class);
+      int statusCode = response.getStatusCode().value();
 
-
-    int statusCode = response.getStatusCode().value();
-
-    if (statusCode != HttpStatus.OK.value()) {
+      if (statusCode != HttpStatus.OK.value()) {
         //
         log.info(
-                " the server responsible for the video with vid id {} is answering with non standard status code", vid.getId());
+            " the server responsible for the video with vid id {} is answering with non standard status code",
+            vid.getId());
 
         ResponseEntity<WatchVidResponse> webResponseTobeGiven =
-                handleNodeFailerPrepareRequestedFileForStream(vid, userId, nodeId, currentFrame);
+            handleNodeFailerPrepareRequestedFileForStream(vid, userId, nodeId, currentFrame);
         // now the async clean up methode goes herr
 
         handleNodeFailerCleanState(nodeId, vid.getId());
 
         return webResponseTobeGiven;
-    }
-    log.info("NEW: server with the file is live and returning propor values back.");
-    return ResponseEntity.status(HttpStatus.OK)
-            .body(new WatchVidResponse(nodeEndPoint, vid.getEncodedLocation(), currentFrame));
-
-
-
-
-}
-
-catch(Exception ex) {
-
-    log.warn("an exception was thrown with the message {}", ex.getMessage());
-
-    log.info(
-            " the server responsible for the video with vid id {} is down fixing state", vid.getId());
-
-    ResponseEntity<WatchVidResponse> webResponseTobeGiven =
-            handleNodeFailerPrepareRequestedFileForStream(vid, userId, nodeId, currentFrame);
-    // now the async clean up methode goes herr
-
-    handleNodeFailerCleanState(nodeId, vid.getId());
-
-    return webResponseTobeGiven;
-
-
       }
+      log.info("NEW: server with the file is live and returning propor values back.");
+      return ResponseEntity.status(HttpStatus.OK)
+          .body(new WatchVidResponse(nodeEndPoint, vid.getEncodedLocation(), currentFrame));
 
+    } catch (Exception ex) {
 
+      log.warn("an exception was thrown with the message {}", ex.getMessage());
+
+      log.info(
+          " the server responsible for the video with vid id {} is down fixing state", vid.getId());
+
+      ResponseEntity<WatchVidResponse> webResponseTobeGiven =
+          handleNodeFailerPrepareRequestedFileForStream(vid, userId, nodeId, currentFrame);
+      // now the async clean up methode goes herr
+
+      handleNodeFailerCleanState(nodeId, vid.getId());
+
+      return webResponseTobeGiven;
+    }
   }
 
   private ResponseEntity<WatchVidResponse> handleNodeFailerPrepareRequestedFileForStream(

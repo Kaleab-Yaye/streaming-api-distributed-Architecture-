@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -46,8 +47,10 @@ public class VidStoreService {
         .getId();
   }
 
-  public void removeALlEntriesOFNode(UUID nodId) {
 
+  @Transactional
+  public void removeALlEntriesOFNode(UUID nodId) {
+      log.info("trying to remove all interies associated with the node that has id {}", nodId);
     vidStoreRepo.deleteVidStoreLocationByStreamingNodeId(nodId);
   }
 }
