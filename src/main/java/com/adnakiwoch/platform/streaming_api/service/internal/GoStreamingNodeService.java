@@ -6,7 +6,6 @@ import com.adnakiwoch.platform.streaming_api.domain.VidStoreLocation;
 import com.adnakiwoch.platform.streaming_api.dto.request.StreamingNode.StreamingNodeRegistRequest;
 import com.adnakiwoch.platform.streaming_api.exception.resource.ResourceNotFoundException;
 import com.adnakiwoch.platform.streaming_api.repository.StreamingNodeRepo;
-
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -147,13 +146,15 @@ public class GoStreamingNodeService implements CommandLineRunner {
     return streamingNodesArray.getArraysSize();
   }
 
-  // this methode for now will be used to change stat of a node but can also be used to remove the recored
-  public void removeNode(UUID uuid){
-      // should
-      Optional<StreamingNode>  optionalStreamingNode = streamingNodeRepo.getStreamingNodeById(uuid);
+  // this methode for now will be used to change stat of a node but can also be used to remove the
+  // recored
+  public void removeNode(UUID uuid) {
+    // should
+    Optional<StreamingNode> optionalStreamingNode = streamingNodeRepo.getStreamingNodeById(uuid);
 
-      optionalStreamingNode.orElseThrow(()->new ResourceNotFoundException("there is node with the id"+uuid)).setUpStat(false);
-      optionalStreamingNode.get().setUpdatedAt(OffsetDateTime.now());
-
+    optionalStreamingNode
+        .orElseThrow(() -> new ResourceNotFoundException("there is node with the id" + uuid))
+        .setUpStat(false);
+    optionalStreamingNode.get().setUpdatedAt(OffsetDateTime.now());
   }
 }

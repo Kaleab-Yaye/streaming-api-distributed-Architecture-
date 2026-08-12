@@ -123,7 +123,7 @@ public class VidService {
     log.info("goign to make prepare request to the streaming node");
 
     // gonna put the logic for fetchiing random  mechine ID from the NODE SERVICE
-    return handleWhenVidIsNotOnAnyNode(vid, userId, currentFrame);
+    return handleWhenVidIsNotOnAnyNode(vid, currentFrame);
   }
 
   public ResponseEntity<GetAvailableVid> getAvailableVidPageHandler() {
@@ -174,7 +174,7 @@ public class VidService {
             vid.getId());
 
         ResponseEntity<WatchVidResponse> webResponseTobeGiven =
-            handleNodeFailerPrepareRequestedFileForStream(vid, userId, nodeId, currentFrame);
+            fileOwnerNodeHealthCheckFailed(vid, userId, currentFrame);
         // now the async clean up methode goes herr
 
         handleNodeFailerCleanState(nodeId, vid.getId());
@@ -193,7 +193,7 @@ public class VidService {
           " the server responsible for the video with vid id {} is down fixing state", vid.getId());
 
       ResponseEntity<WatchVidResponse> webResponseTobeGiven =
-          handleNodeFailerPrepareRequestedFileForStream(vid, userId, nodeId, currentFrame);
+          fileOwnerNodeHealthCheckFailed(vid, nodeId, currentFrame);
       // now the async clean up methode goes herr
 
       handleNodeFailerCleanState(nodeId, vid.getId());
@@ -202,8 +202,10 @@ public class VidService {
     }
   }
 
-  private ResponseEntity<WatchVidResponse> handleNodeFailerPrepareRequestedFileForStream(
-      Vid vid, UUID userId, UUID streamingNodeId, Double currentFrame) {
+  // this need to get refactored the name is confusing asfk
+
+  private ResponseEntity<WatchVidResponse> fileOwnerNodeHealthCheckFailed(
+      Vid vid, UUID streamingNodeId, Double currentFrame) {
     vid.setVidStat(VidStat.ENCODED);
     goStreamingNodeService.removeIdFromList(
         streamingNodeId); // how do you fuck up this bad, why do you fuck up this bad, how is this
@@ -216,8 +218,21 @@ public class VidService {
     cacheManager.getCache("nod_id_to_addr").evict(streamingNodeId);
     cacheManager.getCache("node_id_to_port_addr").evict(streamingNodeId);
 
-    return handleWhenVidIsNotOnAnyNode(vid, userId, currentFrame);
+    return handleWhenVidIsNotOnAnyNode(vid, currentFrame);
   }
+
+  private ResponseEntity<WatchVidResponse> handelNodeFailerToPrepareFileForStream(Vid vid, Double currentFrame, StreamingNode streamingNode){
+      UUID streamingNodeId = streamingNode.getId() ;
+      goStreamingNodeService.removeIdFromList(streamingNodeId);
+      log.info("evicting the node id to adress catch with the key {}", streamingNodeId);
+      cacheManager.getCache("nod_id_to_addr").evict(streamingNodeId);
+      cacheManager.getCache("node_id_to_port_addr").evict(streamingNodeId);
+
+     return  handleWhenVidIsNotOnAnyNode(vid, currentFrame);
+
+
+  }
+
 
   @Async
   public void handleNodeFailerCleanState(UUID nodId, UUID vidId) {
@@ -236,13 +251,26 @@ public class VidService {
     }
 
     vidStoreService.removeALlEntriesOFNode(nodId);
+    goStreamingNodeService.removeNode(nodId);
+  }
 
+  @Async
+  public void handleNodeFailerCleanState(UUID nodId){
+      List<VidStoreLocation> vidStoreLocations =
+              goStreamingNodeService.retrieveAllVidAssociatedWithNode(nodId);
+
+      for (VidStoreLocation vidStoreLocation : vidStoreLocations) {
+          Vid vid = vidStoreLocation.getVid();
+              vid.setVidStat(VidStat.ENCODED);
+      }
+
+      vidStoreService.removeALlEntriesOFNode(nodId);
+      goStreamingNodeService.removeNode(nodId);
 
   }
-  ;
 
   private ResponseEntity<WatchVidResponse> handleWhenVidIsNotOnAnyNode(
-      Vid vid, UUID userId, Double currentFrame) {
+      Vid vid,  Double currentFrame) {
 
     if (goStreamingNodeService.returnSizeOfTheArray() == 0) {
 
@@ -256,65 +284,84 @@ public class VidService {
 
     log.info("the machine that is gonnna handle it has addr of {}", getIPAndPorAddressOFChosenMech);
 
-    String uri = getIPAndPorAddressOFChosenMech + "/stream/node/prepare";
-    String uriLocalDev =
-        "http://host.docker.internal:"
-            + goStreamingNodeService.getPortAddr(selectedNode.getId())
-            + "/stream/node/prepare";
+    // gonna add this safe case when the prepare reqeust fails, and the same clean up happens!!
 
-    log.info("the request to be made as the uri of {}", uriLocalDev);
+    try {
+        String uri = getIPAndPorAddressOFChosenMech + "/stream/node/prepare";
+        String uriLocalDev =
+                "http://host.docker.internal:"
+                        + goStreamingNodeService.getPortAddr(selectedNode.getId())
+                        + "/stream/node/prepare";
 
-    ResponseEntity<String> response =
-        restClient
-            .post()
-            .uri(uriLocalDev)
-            // the Go end point, and we
-            // will have to move it to
-            // env var
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(new PrepareVidForStreamRequest(vid.getEncodedLocation(), "encoded"))
-            .retrieve()
-            .toEntity(String.class);
-    int statusCode =
-        response
-            .getStatusCode()
-            .value(); // NOTE: Go end points need an update to give the propor response status code
-    // for the state machine to work on
-    log.info(
-        "satus code of the requst made to streaming_node is {}", response.getStatusCode().value());
+        log.info("the request to be made as the uri of {}", uriLocalDev);
 
-    // now the follwing part has to be broken  down and made to be an async one. ( lets go)
+        ResponseEntity<String> response =
+                restClient
+                        .post()
+                        .uri(uriLocalDev)
+                        // the Go end point, and we
+                        // will have to move it to
+                        // env var
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(new PrepareVidForStreamRequest(vid.getEncodedLocation(), "encoded"))
+                        .retrieve()
+                        .toEntity(String.class);
+        int statusCode =
+                response
+                        .getStatusCode()
+                        .value(); // NOTE: Go end points need an update to give the propor response status code
 
-    if (response.getStatusCode() == HttpStatus.OK) {
+        // for the state machine to work on
+        log.info(
+                "satus code of the requst made to streaming_node is {}", response.getStatusCode().value());
 
-      vid.setVidStat(VidStat.READY);
+        // now the follwing part has to be broken  down and made to be an async one. ( lets go)
 
-      vidRepo.save(vid);
+        if (response.getStatusCode() == HttpStatus.OK) {
 
-      // async method
-      vidStoreService.addNewVidToNodeRelation(selectedNode, vid);
+            vid.setVidStat(VidStat.READY);
 
-      return ResponseEntity.status(HttpStatus.OK)
-          .body(
-              new WatchVidResponse(
-                  getIPAndPorAddressOFChosenMech,
-                  vid.getEncodedLocation(),
-                  currentFrame)); // the response has to be fixed as well it should include the
-      // addrs as well
+            vidRepo.save(vid);
+
+            // async method
+            vidStoreService.addNewVidToNodeRelation(selectedNode, vid);
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(
+                            new WatchVidResponse(
+                                    getIPAndPorAddressOFChosenMech,
+                                    vid.getEncodedLocation(),
+                                    currentFrame)); // the response has to be fixed as well it should include the
+            // addrs as well
+        }
+
+        if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+            vid.setVidStat(VidStat.STREAMING_NODE_DOWNLOADING_FAILED);
+            vidRepo.save(vid);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+        if (response.getStatusCode() == HttpStatus.FAILED_DEPENDENCY) {
+            vid.setVidStat(VidStat.STREAMING_NODE_ZIPPING_FAILED);
+            vidRepo.save(vid);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
     }
 
-    if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
-      vid.setVidStat(VidStat.STREAMING_NODE_DOWNLOADING_FAILED);
-      vidRepo.save(vid);
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
-    if (response.getStatusCode() == HttpStatus.FAILED_DEPENDENCY) {
-      vid.setVidStat(VidStat.STREAMING_NODE_ZIPPING_FAILED);
-      vidRepo.save(vid);
+    catch(Exception ex){
+        // if exception is hrwon it means the end node is broken, so we gonna need need some recursive calls to make another node handels it
+        log.warn("a network io exception was thrown, trying to order another node to prepare the file for stream {}", ex.getMessage());
+        handelNodeFailerToPrepareFileForStream(vid, currentFrame,selectedNode);
 
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
+        ResponseEntity<WatchVidResponse> watchVidResponseResponseEntity = handelNodeFailerToPrepareFileForStream(vid, currentFrame, selectedNode);
 
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        handleNodeFailerCleanState(selectedNode.getId());
+
+        return watchVidResponseResponseEntity;
+    }
+    // so the entire thing will go in recusrsive calles trying to find the correc  end point to stream with.
   }
 }
