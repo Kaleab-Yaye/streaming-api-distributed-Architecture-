@@ -148,13 +148,28 @@ public class GoStreamingNodeService implements CommandLineRunner {
 
   // this methode for now will be used to change stat of a node but can also be used to remove the
   // recored
-  public void removeNode(UUID uuid) {
+  public boolean removeNode(UUID uuid) {
     // should
-    Optional<StreamingNode> optionalStreamingNode = streamingNodeRepo.getStreamingNodeById(uuid);
+    Optional<StreamingNode> optionalStreamingNode =
+        streamingNodeRepo.getStreamingNodeByIdForLockedWrite(uuid);
 
-    optionalStreamingNode
-        .orElseThrow(() -> new ResourceNotFoundException("there is node with the id" + uuid))
-        .setUpStat(false);
+    StreamingNode streamingNode =
+        optionalStreamingNode.orElseThrow(
+            () -> new ResourceNotFoundException("there is node with the id" + uuid));
+    if (!streamingNode.isUpStat()) {
+      return false; // the stat is not updated another cleaning thread has done the job
+    }
+
+    streamingNode.setUpStat(false);
     optionalStreamingNode.get().setUpdatedAt(OffsetDateTime.now());
+    return true;
+  }
+
+  public StreamingNode getStreamingNodeWithReadLock(UUID nodeId) {
+    Optional<StreamingNode> optionalStreamingNode =
+        streamingNodeRepo.getStreamingNodeByIdForLockedWrite(nodeId);
+
+    return optionalStreamingNode.orElseThrow(
+        () -> new ResourceNotFoundException("there is node with the id" + nodeId));
   }
 }

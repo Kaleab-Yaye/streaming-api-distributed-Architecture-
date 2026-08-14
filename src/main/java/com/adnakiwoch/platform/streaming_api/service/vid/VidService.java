@@ -10,6 +10,7 @@ import com.adnakiwoch.platform.streaming_api.dto.response.vid.GetAvailableVid;
 import com.adnakiwoch.platform.streaming_api.dto.response.vid.VidDtoForGetAvailableVidResponse;
 import com.adnakiwoch.platform.streaming_api.dto.response.vid.WatchVidResponse;
 import com.adnakiwoch.platform.streaming_api.exception.resource.ResourceNotFoundException;
+import com.adnakiwoch.platform.streaming_api.repository.StreamingNodeRepo;
 import com.adnakiwoch.platform.streaming_api.repository.VidRepo;
 import com.adnakiwoch.platform.streaming_api.service.internal.GoStreamingNodeService;
 import com.adnakiwoch.platform.streaming_api.service.security.JwtService;
@@ -24,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 
 @Slf4j
@@ -38,6 +40,7 @@ public class VidService {
   private final GoStreamingNodeService goStreamingNodeService;
   private final VidStoreService vidStoreService;
   private final CacheManager cacheManager;
+  private final StreamingNodeRepo streamingNodeRepo;
 
   public VidService(
       JwtService jwtService,
@@ -47,7 +50,8 @@ public class VidService {
       RestClient restClient,
       GoStreamingNodeService goStreamingNodeService,
       VidStoreService vidStoreService,
-      CacheManager cacheManager) {
+      CacheManager cacheManager,
+      StreamingNodeRepo streamingNodeRepo) {
     this.jwtService = jwtService;
     this.vidRepo = vidRepo;
     this.watchService = watchService;
@@ -56,6 +60,7 @@ public class VidService {
     this.goStreamingNodeService = goStreamingNodeService;
     this.vidStoreService = vidStoreService;
     this.cacheManager = cacheManager;
+    this.streamingNodeRepo = streamingNodeRepo;
   }
 
   public ResponseEntity<HttpStatus> watchVidAuthOrchestrator(
@@ -94,11 +99,17 @@ public class VidService {
   }
 
   // gonna update this entire thing
-
+  @Transactional
   public ResponseEntity<WatchVidResponse> watchVid(
       WatchVIdRequest watchVIdRequest, UserDetails userDetails) {
     UUID userId = UUID.fromString(userDetails.getUsername());
-    Optional<Vid> vidOptional = vidRepo.findById(watchVIdRequest.vidId());
+
+    // ok they should read it in a normal way then if they find it is encoded they should check if
+    // whiel they are inside they fin
+
+    Optional<Vid> vidOptional =
+        vidRepo.getVidLockedToRead(
+            watchVIdRequest.vidId()); // this shoudl be trasctional methode tha  has to lock the db
 
     if (vidOptional.isEmpty()) {
       log.info(
@@ -112,18 +123,15 @@ public class VidService {
 
     java.lang.Double currentFrame = watchService.watchVidRequestHandler(vid.getId(), userId);
 
-    // if the vid is in a node, this needs to be updated to give the ip adress and port the node
-    // that is sotring the vid
-    // will work on it after  handling the new vid reqeust path
     if (vid.getVidStat() == (VidStat.READY)) {
 
-      return handelIfVidIsOnNode(vid, userId, currentFrame);
+      return handelIfVidIsOnNode(vid, userDetails, currentFrame);
     }
 
     log.info("goign to make prepare request to the streaming node");
 
     // gonna put the logic for fetchiing random  mechine ID from the NODE SERVICE
-    return handleWhenVidIsNotOnAnyNode(vid, currentFrame);
+    return handleWhenVidIsNotOnAnyNode(vid, userDetails, currentFrame);
   }
 
   public ResponseEntity<GetAvailableVid> getAvailableVidPageHandler() {
@@ -137,9 +145,21 @@ public class VidService {
   }
 
   private ResponseEntity<WatchVidResponse> handelIfVidIsOnNode(
-      Vid vid, UUID userId, double currentFrame) {
+      Vid vid, UserDetails userDetails, double currentFrame) {
 
+    // now this is where whe can apply one of the read locks, becosue if the clean up is working on
+    // it there is not need to advance from here
+    // we then see the sat and if it falase what i can do is move it back to teh watch vid methode
+    // again
     UUID nodeId = vidStoreService.getNodIdAssociatedWithVidId(vid.getId());
+    StreamingNode streamingNode = goStreamingNodeService.getStreamingNodeWithReadLock(nodeId);
+    if (!streamingNode.isUpStat()) {
+      return watchVid(
+          new WatchVIdRequest(vid.getId()),
+          userDetails); // yes self invocation happen in the trasaction but it is already in a big
+      // trasaction so.
+    }
+
     String nodeEndPoint =
         goStreamingNodeService.getIpAndPortAddr(
             nodeId); // this probably causing the non unique fetch but how?
@@ -174,10 +194,10 @@ public class VidService {
             vid.getId());
 
         ResponseEntity<WatchVidResponse> webResponseTobeGiven =
-            fileOwnerNodeHealthCheckFailed(vid, userId, currentFrame);
+            fileOwnerNodeHealthCheckFailed(vid, nodeId, currentFrame, userDetails);
         // now the async clean up methode goes herr
 
-        handleNodeFailerCleanState(nodeId, vid.getId());
+        vidServiceUtil.handleNodeFailerCleanState(nodeId, vid.getId());
 
         return webResponseTobeGiven;
       }
@@ -193,10 +213,10 @@ public class VidService {
           " the server responsible for the video with vid id {} is down fixing state", vid.getId());
 
       ResponseEntity<WatchVidResponse> webResponseTobeGiven =
-          fileOwnerNodeHealthCheckFailed(vid, nodeId, currentFrame);
+          fileOwnerNodeHealthCheckFailed(vid, nodeId, currentFrame, userDetails);
       // now the async clean up methode goes herr
 
-      handleNodeFailerCleanState(nodeId, vid.getId());
+      vidServiceUtil.handleNodeFailerCleanState(nodeId, vid.getId());
 
       return webResponseTobeGiven;
     }
@@ -205,7 +225,7 @@ public class VidService {
   // this need to get refactored the name is confusing asfk
 
   private ResponseEntity<WatchVidResponse> fileOwnerNodeHealthCheckFailed(
-      Vid vid, UUID streamingNodeId, Double currentFrame) {
+      Vid vid, UUID streamingNodeId, Double currentFrame, UserDetails userDetails) {
     vid.setVidStat(VidStat.ENCODED);
     goStreamingNodeService.removeIdFromList(
         streamingNodeId); // how do you fuck up this bad, why do you fuck up this bad, how is this
@@ -218,59 +238,38 @@ public class VidService {
     cacheManager.getCache("nod_id_to_addr").evict(streamingNodeId);
     cacheManager.getCache("node_id_to_port_addr").evict(streamingNodeId);
 
-    return handleWhenVidIsNotOnAnyNode(vid, currentFrame);
+    return handleWhenVidIsNotOnAnyNode(
+        vid,
+        userDetails,
+        currentFrame); // have to clean up those methode they are tkaing more than needed njebr of
+    // arguments
   }
 
-  private ResponseEntity<WatchVidResponse> handelNodeFailerToPrepareFileForStream(Vid vid, Double currentFrame, StreamingNode streamingNode){
-      UUID streamingNodeId = streamingNode.getId() ;
-      goStreamingNodeService.removeIdFromList(streamingNodeId);
-      log.info("evicting the node id to adress catch with the key {}", streamingNodeId);
-      cacheManager.getCache("nod_id_to_addr").evict(streamingNodeId);
-      cacheManager.getCache("node_id_to_port_addr").evict(streamingNodeId);
+  private ResponseEntity<WatchVidResponse> handelNodeFailerToPrepareFileForStream(
+      Vid vid, Double currentFrame, StreamingNode streamingNode, UserDetails userDetails) {
+    UUID streamingNodeId = streamingNode.getId();
+    goStreamingNodeService.removeIdFromList(streamingNodeId);
+    log.info("evicting the node id to adress catch with the key {}", streamingNodeId);
+    cacheManager.getCache("nod_id_to_addr").evict(streamingNodeId);
+    cacheManager.getCache("node_id_to_port_addr").evict(streamingNodeId);
 
-     return  handleWhenVidIsNotOnAnyNode(vid, currentFrame);
-
-
+    return handleWhenVidIsNotOnAnyNode(vid, userDetails, currentFrame); // remove vid.getId();
   }
 
-
-  @Async
-  public void handleNodeFailerCleanState(UUID nodId, UUID vidId) {
-    // gonna need to fetch all the videos associated witt the node
-    // remove each relation that was in the data base
-    // and then updated the state of the vid files one by one ( gonna loop over thema nd cahnge them
-    // to the encoded state, except for the video that was just proccessed)
-    List<VidStoreLocation> vidStoreLocations =
-        goStreamingNodeService.retrieveAllVidAssociatedWithNode(nodId);
-
-    for (VidStoreLocation vidStoreLocation : vidStoreLocations) {
-      Vid vid = vidStoreLocation.getVid();
-      if (vid.getId() != vidId) {
-        vid.setVidStat(VidStat.ENCODED);
-      }
-    }
-
-    vidStoreService.removeALlEntriesOFNode(nodId);
-    goStreamingNodeService.removeNode(nodId);
-  }
-
-  @Async
-  public void handleNodeFailerCleanState(UUID nodId){
-      List<VidStoreLocation> vidStoreLocations =
-              goStreamingNodeService.retrieveAllVidAssociatedWithNode(nodId);
-
-      for (VidStoreLocation vidStoreLocation : vidStoreLocations) {
-          Vid vid = vidStoreLocation.getVid();
-              vid.setVidStat(VidStat.ENCODED);
-      }
-
-      vidStoreService.removeALlEntriesOFNode(nodId);
-      goStreamingNodeService.removeNode(nodId);
-
-  }
 
   private ResponseEntity<WatchVidResponse> handleWhenVidIsNotOnAnyNode(
-      Vid vid,  Double currentFrame) {
+      Vid vid, UserDetails userDetails, Double currentFrame) {
+
+    Optional<Vid> optionalVid = vidRepo.getVidLockedToWrite(vid.getId());
+    Vid toBeWrittenOnVid =
+        optionalVid.orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    "the vid with the id is not found "
+                        + vid.getId())); // this line here stops the simoltinuist
+    if (toBeWrittenOnVid.getVidStat() == VidStat.READY) {
+      return handelIfVidIsOnNode(vid, userDetails, currentFrame);
+    }
 
     if (goStreamingNodeService.returnSizeOfTheArray() == 0) {
 
@@ -287,81 +286,85 @@ public class VidService {
     // gonna add this safe case when the prepare reqeust fails, and the same clean up happens!!
 
     try {
-        String uri = getIPAndPorAddressOFChosenMech + "/stream/node/prepare";
-        String uriLocalDev =
-                "http://host.docker.internal:"
-                        + goStreamingNodeService.getPortAddr(selectedNode.getId())
-                        + "/stream/node/prepare";
+      String uri = getIPAndPorAddressOFChosenMech + "/stream/node/prepare";
+      String uriLocalDev =
+          "http://host.docker.internal:"
+              + goStreamingNodeService.getPortAddr(selectedNode.getId())
+              + "/stream/node/prepare";
 
-        log.info("the request to be made as the uri of {}", uriLocalDev);
+      log.info("the request to be made as the uri of {}", uriLocalDev);
 
-        ResponseEntity<String> response =
-                restClient
-                        .post()
-                        .uri(uriLocalDev)
-                        // the Go end point, and we
-                        // will have to move it to
-                        // env var
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(new PrepareVidForStreamRequest(vid.getEncodedLocation(), "encoded"))
-                        .retrieve()
-                        .toEntity(String.class);
-        int statusCode =
-                response
-                        .getStatusCode()
-                        .value(); // NOTE: Go end points need an update to give the propor response status code
+      ResponseEntity<String> response =
+          restClient
+              .post()
+              .uri(uriLocalDev)
+              // the Go end point, and we
+              // will have to move it to
+              // env var
+              .contentType(MediaType.APPLICATION_JSON)
+              .body(new PrepareVidForStreamRequest(vid.getEncodedLocation(), "encoded"))
+              .retrieve()
+              .toEntity(String.class);
+      int statusCode =
+          response
+              .getStatusCode()
+              .value(); // NOTE: Go end points need an update to give the propor response status
+      // code
 
-        // for the state machine to work on
-        log.info(
-                "satus code of the requst made to streaming_node is {}", response.getStatusCode().value());
+      // for the state machine to work on
+      log.info(
+          "satus code of the requst made to streaming_node is {}",
+          response.getStatusCode().value());
 
-        // now the follwing part has to be broken  down and made to be an async one. ( lets go)
+      // now the follwing part has to be broken  down and made to be an async one. ( lets go)
 
-        if (response.getStatusCode() == HttpStatus.OK) {
+      if (response.getStatusCode() == HttpStatus.OK) {
 
-            vid.setVidStat(VidStat.READY);
+        vid.setVidStat(VidStat.READY);
 
-            vidRepo.save(vid);
+        vidRepo.save(vid);
 
-            // async method
-            vidStoreService.addNewVidToNodeRelation(selectedNode, vid);
+        // async method
+        vidStoreService.addNewVidToNodeRelation(selectedNode, vid);
 
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(
-                            new WatchVidResponse(
-                                    getIPAndPorAddressOFChosenMech,
-                                    vid.getEncodedLocation(),
-                                    currentFrame)); // the response has to be fixed as well it should include the
-            // addrs as well
-        }
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(
+                new WatchVidResponse(
+                    getIPAndPorAddressOFChosenMech,
+                    vid.getEncodedLocation(),
+                    currentFrame)); // the response has to be fixed as well it should include the
+        // addrs as well
+      }
 
-        if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
-            vid.setVidStat(VidStat.STREAMING_NODE_DOWNLOADING_FAILED);
-            vidRepo.save(vid);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-        if (response.getStatusCode() == HttpStatus.FAILED_DEPENDENCY) {
-            vid.setVidStat(VidStat.STREAMING_NODE_ZIPPING_FAILED);
-            vidRepo.save(vid);
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+      if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+        vid.setVidStat(VidStat.STREAMING_NODE_DOWNLOADING_FAILED);
+        vidRepo.save(vid);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      }
+      if (response.getStatusCode() == HttpStatus.FAILED_DEPENDENCY) {
+        vid.setVidStat(VidStat.STREAMING_NODE_ZIPPING_FAILED);
+        vidRepo.save(vid);
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      }
 
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+    } catch (Exception ex) {
+      // if exception is hrwon it means the end node is broken, so we gonna need need some recursive
+      // calls to make another node handels it
+      log.warn(
+          "a network io exception was thrown, trying to order another node to prepare the file for stream {}",
+          ex.getMessage());
+
+      ResponseEntity<WatchVidResponse> watchVidResponseResponseEntity =
+          handelNodeFailerToPrepareFileForStream(vid, currentFrame, selectedNode, userDetails);
+
+      vidServiceUtil.handleNodeFailerCleanState(selectedNode.getId());
+
+      return watchVidResponseResponseEntity;
     }
-
-    catch(Exception ex){
-        // if exception is hrwon it means the end node is broken, so we gonna need need some recursive calls to make another node handels it
-        log.warn("a network io exception was thrown, trying to order another node to prepare the file for stream {}", ex.getMessage());
-        handelNodeFailerToPrepareFileForStream(vid, currentFrame,selectedNode);
-
-        ResponseEntity<WatchVidResponse> watchVidResponseResponseEntity = handelNodeFailerToPrepareFileForStream(vid, currentFrame, selectedNode);
-
-        handleNodeFailerCleanState(selectedNode.getId());
-
-        return watchVidResponseResponseEntity;
-    }
-    // so the entire thing will go in recusrsive calles trying to find the correc  end point to stream with.
+    // so the entire thing will go in recusrsive calles trying to find the correc  end point to
+    // stream with.
   }
 }
