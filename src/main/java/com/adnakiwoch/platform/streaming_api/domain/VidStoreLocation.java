@@ -20,3 +20,6 @@ public class VidStoreLocation {
   @JoinColumn(name = "vid_id")
   private @Getter @Setter Vid vid;
 }
+
+
+

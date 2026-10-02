@@ -2,7 +2,6 @@ package com.adnakiwoch.platform.streaming_api.service.vid;
 
 import com.adnakiwoch.platform.streaming_api.domain.StreamingNode;
 import com.adnakiwoch.platform.streaming_api.domain.Vid;
-import com.adnakiwoch.platform.streaming_api.domain.VidStoreLocation;
 import com.adnakiwoch.platform.streaming_api.dto.header.GetVidHeader;
 import com.adnakiwoch.platform.streaming_api.dto.request.outgoing.stream.PrepareVidForStreamRequest;
 import com.adnakiwoch.platform.streaming_api.dto.request.vid.WatchVIdRequest;
@@ -22,7 +21,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -102,36 +100,41 @@ public class VidService {
   @Transactional
   public ResponseEntity<WatchVidResponse> watchVid(
       WatchVIdRequest watchVIdRequest, UserDetails userDetails) {
-    UUID userId = UUID.fromString(userDetails.getUsername());
+      UUID userId = UUID.fromString(userDetails.getUsername());
 
-    // ok they should read it in a normal way then if they find it is encoded they should check if
-    // whiel they are inside they fin
+      // ok they should read it in a normal way then if they find it is encoded they should check if
+      // whiel they are inside they fin
 
-    Optional<Vid> vidOptional =
-        vidRepo.getVidLockedToRead(
-            watchVIdRequest.vidId()); // this shoudl be trasctional methode tha  has to lock the db
+      Optional<Vid> vidOptional =
+              vidRepo.getVidLockedToRead(
+                      watchVIdRequest.vidId()); // this shoudl be trasctional methode tha  has to lock the db
 
-    if (vidOptional.isEmpty()) {
-      log.info(
-          "user with the id {}, tried to acces vid that doesn exist with the vid id of {}",
-          userId,
-          watchVIdRequest.vidId());
-      throw new ResourceNotFoundException(
-          "vid with the follwoing ID doesn exist: " + watchVIdRequest.vidId());
-    }
-    Vid vid = vidOptional.get();
+      if (vidOptional.isEmpty()) {
+          log.info(
+                  "user with the id {}, tried to acces vid that doesn exist with the vid id of {}",
+                  userId,
+                  watchVIdRequest.vidId());
+          throw new ResourceNotFoundException(
+                  "vid with the follwoing ID doesn exist: " + watchVIdRequest.vidId());
+      }
+      Vid vid = vidOptional.get();
 
-    java.lang.Double currentFrame = watchService.watchVidRequestHandler(vid.getId(), userId);
+      java.lang.Double currentFrame = watchService.watchVidRequestHandler(vid.getId(), userId);
+      if (vid.getVidStat() == (VidStat.READY) || vid.getVidStat() == (VidStat.ENCODED)) {
+          if (vid.getVidStat() == (VidStat.READY)) {
 
-    if (vid.getVidStat() == (VidStat.READY)) {
+              return handelIfVidIsOnNode(vid, userDetails, currentFrame);
+          }
 
-      return handelIfVidIsOnNode(vid, userDetails, currentFrame);
-    }
+          log.info("goign to make prepare request to the streaming node");
 
-    log.info("goign to make prepare request to the streaming node");
+          // gonna put the logic for fetchiing random  mechine ID from the NODE SERVICE
+          return handleWhenVidIsNotOnAnyNode(vid, userDetails, currentFrame);
+      }
 
-    // gonna put the logic for fetchiing random  mechine ID from the NODE SERVICE
-    return handleWhenVidIsNotOnAnyNode(vid, userDetails, currentFrame);
+      log.warn("a user tried to access vid that is not yet encoded or ready");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
   }
 
   public ResponseEntity<GetAvailableVid> getAvailableVidPageHandler() {
@@ -255,7 +258,6 @@ public class VidService {
 
     return handleWhenVidIsNotOnAnyNode(vid, userDetails, currentFrame); // remove vid.getId();
   }
-
 
   private ResponseEntity<WatchVidResponse> handleWhenVidIsNotOnAnyNode(
       Vid vid, UserDetails userDetails, Double currentFrame) {

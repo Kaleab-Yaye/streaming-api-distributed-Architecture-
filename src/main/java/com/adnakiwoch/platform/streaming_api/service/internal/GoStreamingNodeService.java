@@ -155,7 +155,7 @@ public class GoStreamingNodeService implements CommandLineRunner {
 
     StreamingNode streamingNode =
         optionalStreamingNode.orElseThrow(
-            () -> new ResourceNotFoundException("there is node with the id" + uuid));
+            () -> new ResourceNotFoundException("there is no node with the id" + uuid));
     if (!streamingNode.isUpStat()) {
       return false; // the stat is not updated another cleaning thread has done the job
     }
