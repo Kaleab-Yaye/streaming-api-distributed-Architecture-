@@ -70,6 +70,8 @@ public class WatchService {
     return (watchOptional.get().getCurrentFrame());
   }
 
+
+  // this entire thing will need to be re-astablished and removed from scratch to wee what we can do
   public ResponseEntity<HttpStatus> watchVidAuthHandler(
       GetVidHeader getVidHeader, UserDetails userDetails) {
     UUID userId = UUID.fromString(userDetails.getUsername());
@@ -80,6 +82,7 @@ public class WatchService {
         userId,
         vidId,
         currentFrame);
+    //this is the part that the go nodes have to generally handle the entire auth path is gonna get removed
     cacheHandler(vidId, currentFrame);
     return ResponseEntity.status(HttpStatus.OK).build();
   }

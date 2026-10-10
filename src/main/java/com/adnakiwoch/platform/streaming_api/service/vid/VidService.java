@@ -312,8 +312,7 @@ public class VidService {
               .getStatusCode()
               .value(); // NOTE: Go end points need an update to give the propor response status
       // code
-
-      // for the state machine to work on
+     // for the state machine to work on
       log.info(
           "satus code of the requst made to streaming_node is {}",
           response.getStatusCode().value());

@@ -210,6 +210,17 @@
         </dependency>
         <!-- dependacy for s3 storage -->
 
+        <!-- redis dep -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <version>4.2.0-M2</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- end of redis depndacy-->
+
 
 
 

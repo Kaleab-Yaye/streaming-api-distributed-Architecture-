@@ -11,6 +11,7 @@ import enums.VidStat;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -20,9 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class EncoderService {
   private final VidRepo vidRepo;
-  private final Cache<Integer, UUID> cache;
+  // this has to be also made in to redis cache wiht infinte life
+  private final RedisTemplate<Integer, UUID> cache;
 
-  public EncoderService(VidRepo vidRepo, Cache<Integer, UUID> cache) {
+  public EncoderService(VidRepo vidRepo, RedisTemplate<Integer, UUID> cache) {
     this.vidRepo = vidRepo;
     this.cache = cache;
   }
@@ -31,19 +33,24 @@ public class EncoderService {
   public ResponseEntity<EncodeResponse> getVidToEncode(String machineNumber) {
     // ok gotta admite this gotta be fixed but it is not that important for now
 
+
+      // what ever th  fuck this shit it i dont see its use or what ever it is doing i think i can safely remove it
+      // yeah it actully makes sense it is storing safgry when an already incoding mechine asks tfor the same vid
     int mechNumber = Integer.parseInt(machineNumber);
     if (mechNumber <= 0) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
-    if (cache.asMap().containsKey(mechNumber)) {
-      Optional<Vid> vidoption = vidRepo.findById(cache.getIfPresent(mechNumber));
+      UUID vidId = cache.opsForValue().get(mechNumber);
+
+    if (vidId!=null) {
+      Optional<Vid> vidoption = vidRepo.findById(vidId);
       Vid vid =
           vidoption.orElseThrow(
               () ->
                   new ResourceNotFoundException(
                       "the vid with the vid id "
-                          + cache.getIfPresent(mechNumber)
+                          + vidId
                           + " didd't exist"));
       vid.setEncodeInt(mechNumber);
       return ResponseEntity.ok().body(new EncodeResponse(vid.getUploadLocation(), vid.getId()));
@@ -57,7 +64,8 @@ public class EncoderService {
 
     vid.setVidStat(VidStat.ENCODING);
     vidRepo.save(vid);
-    cache.put(mechNumber, vid.getId());
+    cache.opsForValue().set(mechNumber, vid.getId());
+
     return ResponseEntity.ok().body(new EncodeResponse(vid.getUploadLocation(), vid.getId()));
   }
 
@@ -65,8 +73,8 @@ public class EncoderService {
       EncodeFailedRequest encodeFailedRequest, String mechNumber) {
     int machineNumber = Integer.parseInt(mechNumber);
 
-    if (cache.asMap().containsKey(machineNumber)) {
-      cache.invalidate(machineNumber);
+    if (cache.hasKey(machineNumber)) {
+      cache.delete(machineNumber);
     }
 
     Optional<Vid> vidOptional = vidRepo.findById(encodeFailedRequest.vidId());
@@ -114,8 +122,8 @@ public class EncoderService {
   public ResponseEntity<HttpStatus> encodeDone(
       EncodeDoneRequest encodeDoneRequest, String mechNumber) {
     int machineNumber = Integer.parseInt(mechNumber);
-    if (cache.asMap().containsKey(machineNumber)) {
-      cache.invalidate(machineNumber);
+    if (cache.hasKey(machineNumber)) {
+      cache.delete(machineNumber);
     }
     log.info("encode done reqeust was made with the id {}", encodeDoneRequest.vidId());
     log.info(
