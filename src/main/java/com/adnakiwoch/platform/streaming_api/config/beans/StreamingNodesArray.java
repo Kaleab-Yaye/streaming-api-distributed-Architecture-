@@ -1,7 +1,9 @@
 package com.adnakiwoch.platform.streaming_api.config.beans;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -17,24 +19,30 @@ public class StreamingNodesArray {
   // gonna need a thread safe array
   // already moved to redis whih is by design single threaded so just SET oprations on IT is enouph
 
-  private  final RedisTemplate<String, Objects> redisTemplateForAvailableNodes;
+  private  final RedisTemplate<String, UUID> redisTemplateForAvailableNodes;
+
+  private final String nodeListKeyName = System.getenv("NODE_LIST_KEY_NAME");
 
   private final List<UUID> multitreadedList = new CopyOnWriteArrayList<UUID>();
 
   public void addElementToList(UUID uuid) {
 
-    multitreadedList.add(uuid);
+      redisTemplateForAvailableNodes.opsForSet().add(nodeListKeyName ,uuid);
+
+
   }
 
   public UUID getElementAtIndex(int index) {
-    return multitreadedList.get(index);
+   Set<UUID>  setOfALlAvailableNodes =  redisTemplateForAvailableNodes.opsForSet().members(nodeListKeyName);
+      assert setOfALlAvailableNodes != null;
+      return setOfALlAvailableNodes.toArray(new UUID[0])[index];
   }
 
   public int getArraysSize() {
-    return multitreadedList.size();
+    return Math.toIntExact(redisTemplateForAvailableNodes.opsForSet().size(nodeListKeyName));
   }
 
   public void removeElement(UUID nodeId) {
-    multitreadedList.remove(nodeId);
+    redisTemplateForAvailableNodes.opsForSet().remove(nodeListKeyName, nodeId);
   }
 }
