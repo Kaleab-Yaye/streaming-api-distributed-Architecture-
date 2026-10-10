@@ -16,8 +16,11 @@ import com.adnakiwoch.platform.streaming_api.service.security.JwtService;
 import enums.VidStat;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +41,8 @@ public class VidService {
   private final GoStreamingNodeService goStreamingNodeService;
   private final VidStoreService vidStoreService;
   private final CacheManager cacheManager;
+  //redisTemplate for caching the access token to vid location
+  private final RedisTemplate<String, String> redisTemplate;
   private final StreamingNodeRepo streamingNodeRepo;
 
   public VidService(
@@ -49,7 +54,8 @@ public class VidService {
       GoStreamingNodeService goStreamingNodeService,
       VidStoreService vidStoreService,
       CacheManager cacheManager,
-      StreamingNodeRepo streamingNodeRepo) {
+      StreamingNodeRepo streamingNodeRepo,
+      RedisTemplate<String, String> redisTemplate) {
     this.jwtService = jwtService;
     this.vidRepo = vidRepo;
     this.watchService = watchService;
@@ -59,6 +65,7 @@ public class VidService {
     this.vidStoreService = vidStoreService;
     this.cacheManager = cacheManager;
     this.streamingNodeRepo = streamingNodeRepo;
+    this.redisTemplate = redisTemplate;
   }
 
   public ResponseEntity<HttpStatus> watchVidAuthOrchestrator(
@@ -205,8 +212,11 @@ public class VidService {
         return webResponseTobeGiven;
       }
       log.info("NEW: server with the file is live and returning propor values back.");
+      // succes path
+        String accessToken  = UUID.randomUUID().toString();
+        redisTemplate.opsForValue().set(accessToken, vid.getEncodedLocation() );
       return ResponseEntity.status(HttpStatus.OK)
-          .body(new WatchVidResponse(nodeEndPoint, vid.getEncodedLocation(), currentFrame));
+          .body(new WatchVidResponse(nodeEndPoint, vid.getEncodedLocation(), currentFrame).getWatchVidResponseWithAccessToken(accessToken ));
 
     } catch (Exception ex) {
 
@@ -327,15 +337,21 @@ public class VidService {
 
         // async method
         vidStoreService.addNewVidToNodeRelation(selectedNode, vid);
+        // here is where the access token and the vidwatch should be set on redis
+        String accessToken = UUID.randomUUID().toString();
+
+        redisTemplate.opsForValue().set(accessToken, vid.getEncodedLocation(), 60 , TimeUnit.MINUTES);
+
 
         return ResponseEntity.status(HttpStatus.OK)
             .body(
                 new WatchVidResponse(
                     getIPAndPorAddressOFChosenMech,
                     vid.getEncodedLocation(),
-                    currentFrame)); // the response has to be fixed as well it should include the
+                    currentFrame).getWatchVidResponseWithAccessToken(accessToken)); // the response has to be fixed as well it should include the
         // addrs as well
       }
+
 
       if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
         vid.setVidStat(VidStat.STREAMING_NODE_DOWNLOADING_FAILED);

@@ -23,7 +23,7 @@ public class StreamingNodesArray {
 
   private final String nodeListKeyName = System.getenv("NODE_LIST_KEY_NAME");
 
-  private final List<UUID> multitreadedList = new CopyOnWriteArrayList<UUID>();
+
 
   public void addElementToList(UUID uuid) {
 
