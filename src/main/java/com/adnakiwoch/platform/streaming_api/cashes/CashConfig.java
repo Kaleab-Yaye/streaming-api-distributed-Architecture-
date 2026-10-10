@@ -53,9 +53,12 @@ public class CashConfig {
     }
 
 
+
+
+
     @Bean
-    public RedisTemplate<Integer, UUID> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<Integer, UUID> template = new RedisTemplate<>();
+    public RedisTemplate<String, Object> redisTemplateForAvailableStreamingNodesList(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
 
 
@@ -64,7 +67,7 @@ public class CashConfig {
         template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
 
         return template;
-}
+    }
 
 
 
