@@ -28,7 +28,7 @@ func RegistNodeHandler(port_num string) (error, bool) {
 	request, err := http.NewRequest("POST", os.Getenv("CENTRAL_SERVER")+end_point, bytes.NewReader(mersheld_reqeust_body))
 
 	if err != nil {
-		fmt.Println("there was an error in setingup a reqeust")
+		fmt.Println("there was an error in seting up a reqeust")
 		return err, false
 	}
 

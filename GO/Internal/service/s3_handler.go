@@ -106,7 +106,6 @@ func (s *S3ClintStore) DownloadFileFromMinIO(w http.ResponseWriter, r *http.Requ
 	if result != true {
 		w.WriteHeader(http.StatusFailedDependency)
 		return
-
 	}
 
 	err = os.RemoveAll(downloadedFilePath)

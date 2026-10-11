@@ -1,7 +1,7 @@
 package main
 
 import (
-	"GO/service"
+	service2 "GO/Internal/service"
 	"fmt"
 	"net/http"
 	"os"
@@ -20,11 +20,11 @@ func main() {
 
 	port_number := os.Getenv("PORT_NUM")
 	fmt.Println("server starting at port ", port_number, "well if you see this it is newly compiled")
-	minioClinet, err := service.NewS3ClintStore()
+	minioClinet, err := service2.NewS3ClintStore()
 	if err != nil {
 		fmt.Println("could't parse the port number from env, exiting")
 	}
-	err, stat := service.RegistNodeHandler(port_number)
+	err, stat := service2.RegistNodeHandler(port_number)
 
 	if stat != true {
 		fmt.Println("first atttempt to regist fails with the error ", err)
@@ -34,7 +34,7 @@ func main() {
 
 		for i := 0; i < 5; i++ {
 
-			err, stat = service.RegistNodeHandler(port_number)
+			err, stat = service2.RegistNodeHandler(port_number)
 
 			if stat == true {
 
@@ -62,9 +62,13 @@ func main() {
 		return
 	}
 
+	vidAuthController := newAPP()
+
 	http.HandleFunc("/stream/node/test2", HandelTestReqeust)
 	http.HandleFunc("/stream/node/prepare", minioClinet.DownloadFileFromMinIO)
-	http.HandleFunc("/stream/v1/node/health", service.HandelHealthCheck)
+	http.HandleFunc("/stream/v1/node/health", service2.HandelHealthCheck)
+	// well here is where we will put all the nessary end points and shi
+	http.HandleFunc()
 
 	err = http.ListenAndServe(":"+"3002", nil) // should probably move the port num to env
 	if err != nil {
