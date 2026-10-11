@@ -1,6 +1,7 @@
 package com.adnakiwoch.platform.streaming_api.web.controller.hooks.StreamingNode;
 
 import com.adnakiwoch.platform.streaming_api.dto.request.StreamingNode.StreamingNodeRegistRequest;
+import com.adnakiwoch.platform.streaming_api.dto.request.hook.streaming_node.SubmitCurrentFrameRequest;
 import com.adnakiwoch.platform.streaming_api.service.internal.GoStreamingNodeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,13 @@ public class StreamingNodeWebController {
       @RequestBody StreamingNodeRegistRequest streamingNodeRegistRequest) {
 
     return goStreamingNodeService.newStreamingNodeHandler(streamingNodeRegistRequest);
+  }
+
+
+  @PostMapping("/submite/current/frame")
+
+   ResponseEntity<Void>  submiteCurrentFrameHandler (@RequestBody SubmitCurrentFrameRequest submitCurrentFrameRequest){
+
   }
 
 

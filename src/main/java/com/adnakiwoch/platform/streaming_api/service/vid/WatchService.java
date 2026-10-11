@@ -103,5 +103,11 @@ public class WatchService {
       return  watchRepo.findByVidIdAndUserId(userId, vidId).orElseThrow(()->new RuntimeException("could find wath wiht the user id "+userId+" and vid id "+vidId)).getId();
   }
 
+  public Optional<Watch> getWatchWithWatchId(UUID watchId){
+
+      return watchRepo.findById(watchId);
+
+  }
+
 
 }
