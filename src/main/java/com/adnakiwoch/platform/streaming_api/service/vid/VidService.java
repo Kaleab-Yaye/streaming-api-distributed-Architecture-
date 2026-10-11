@@ -78,7 +78,7 @@ public class VidService {
 
       String[] uriParts = uri.split("/");
 
-      // get/vid/get/{vidLoc}/{quality}/{segmentNumber}
+      // {}/vid/get/{vidLoc}/{quality}/{segmentNumber}
       // 0    1   2     3         4         5
 
       String vidLocation = uriParts[3];
@@ -214,7 +214,9 @@ public class VidService {
       log.info("NEW: server with the file is live and returning propor values back.");
       // succes path
         String accessToken  = UUID.randomUUID().toString();
-        redisTemplate.opsForValue().set(accessToken, vid.getEncodedLocation() );
+        String watchId = watchService.getWatchIdWithUserIdAndVidId(UUID.fromString(userDetails.getUsername()), vid.getId()).toString();
+        redisTemplate.opsForValue().set(accessToken+":"+watchId, vid.getEncodedLocation(), 60, TimeUnit.MINUTES); // weird i know but one way to do it
+
       return ResponseEntity.status(HttpStatus.OK)
           .body(new WatchVidResponse(nodeEndPoint, vid.getEncodedLocation(), currentFrame).getWatchVidResponseWithAccessToken(accessToken ));
 
@@ -338,9 +340,15 @@ public class VidService {
         // async method
         vidStoreService.addNewVidToNodeRelation(selectedNode, vid);
         // here is where the access token and the vidwatch should be set on redis
-        String accessToken = UUID.randomUUID().toString();
+          // this won't be just an access Token but the WatchId instead
 
-        redisTemplate.opsForValue().set(accessToken, vid.getEncodedLocation(), 60 , TimeUnit.MINUTES);
+
+        String accessToken = UUID.randomUUID().toString();
+          String watchId = watchService.getWatchIdWithUserIdAndVidId(UUID.fromString(userDetails.getUsername()), vid.getId()).toString();
+
+
+
+          redisTemplate.opsForValue().set(accessToken+":"+vid.getEncodedLocation(), watchId, 60, TimeUnit.MINUTES);
 
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -384,4 +392,5 @@ public class VidService {
     // so the entire thing will go in recusrsive calles trying to find the correc  end point to
     // stream with.
   }
+
 }

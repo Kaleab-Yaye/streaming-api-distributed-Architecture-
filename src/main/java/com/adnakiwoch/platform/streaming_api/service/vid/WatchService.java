@@ -31,6 +31,7 @@ public class WatchService {
       VidRepo vidRepo,
       UserRepository userRepository,
       WatchServiceUtil watchUtil,
+      // has to be made in to redis cache as well
       Cache<UUID, Double> cacheVidId) {
     this.watchRepo = watchRepo;
     this.vidRepo = vidRepo;
@@ -97,4 +98,10 @@ public class WatchService {
     cacheVidId.put(vidID, currentNumber);
     log.info("cache handler is called and has put the value");
   }
+
+  public UUID getWatchIdWithUserIdAndVidId(UUID userId, UUID vidId){
+      return  watchRepo.findByVidIdAndUserId(userId, vidId).orElseThrow(()->new RuntimeException("could find wath wiht the user id "+userId+" and vid id "+vidId)).getId();
+  }
+
+
 }
