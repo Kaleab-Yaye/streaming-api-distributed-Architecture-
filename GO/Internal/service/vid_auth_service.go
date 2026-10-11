@@ -5,27 +5,30 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/jellydator/ttlcache/v3"
 	"github.com/redis/go-redis/v9"
 )
 
 type VidAuthService struct {
-	redisService *RedisService
+	redisService      *RedisService
+	currentFrameCache *ttlcache.Cache[string, float64]
 }
 
-func NewVidAuthService(service *RedisService) *VidAuthService {
+func NewVidAuthService(service *RedisService, currentFrameCache *ttlcache.Cache[string, float64]) *VidAuthService {
 
 	return &VidAuthService{
-		redisService: service,
+		redisService:      service,
+		currentFrameCache: currentFrameCache,
 	}
 }
 
 // does it exist logic here
 
-func (vidAuthService *VidAuthService) WatchAuthHandler(rawUri string, accessToken string) int {
-	splitedUri := strings.Split(rawUri, "/")
+func (vidAuthService *VidAuthService) WatchAuthHandler(rawUri string, accessToken string, frameBeingRequest float64) int {
+	SplittedUri := strings.Split(rawUri, "/")
 	// {}/vid/get/{vidLoc}/{quality}/{segmentNumber}
 	// 0   1    2     3           4        5
-	vidLoc := splitedUri[3]
+	vidLoc := SplittedUri[3]
 	key := vidLoc + ":" + accessToken
 
 	// now we check for its exitance
@@ -45,8 +48,11 @@ func (vidAuthService *VidAuthService) WatchAuthHandler(rawUri string, accessToke
 
 	}
 
-	// call the caching logic here
-	print("the sotred watch id is ", storedWatchId)
+	if strings.HasSuffix(rawUri, ".ts") {
+
+		vidAuthService.currentFrameCache.Set(storedWatchId, frameBeingRequest, ttlcache.DefaultTTL)
+
+	}
 
 	return http.StatusOK
 

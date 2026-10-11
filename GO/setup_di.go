@@ -4,6 +4,8 @@ import (
 	"GO/Internal/Controller"
 	"GO/Internal/service"
 	"context"
+	"net/http"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -17,8 +19,12 @@ func newAPP() *app {
 	rdp, contextBack := setUpRedisClient()
 	// now setup the Redis service
 
+	currentFrameCache := GetCacheForTrackingCurrentFrame(&http.Client{
+		Timeout: 10 * time.Second,
+	})
+
 	redisService := service.NewRedisService(contextBack, rdp)
-	vidAuthService := service.NewVidAuthService(redisService)
+	vidAuthService := service.NewVidAuthService(redisService, currentFrameCache)
 	vidAuthController := Controller.NewVidAuthController(vidAuthService)
 	return &app{
 		redisController: vidAuthController,
