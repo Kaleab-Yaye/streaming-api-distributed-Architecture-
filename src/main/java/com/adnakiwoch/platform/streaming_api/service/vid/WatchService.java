@@ -4,9 +4,11 @@ import com.adnakiwoch.platform.streaming_api.domain.User;
 import com.adnakiwoch.platform.streaming_api.domain.Vid;
 import com.adnakiwoch.platform.streaming_api.domain.Watch;
 import com.adnakiwoch.platform.streaming_api.dto.header.GetVidHeader;
+import com.adnakiwoch.platform.streaming_api.dto.response.hooks.CurrentFrameResponse;
 import com.adnakiwoch.platform.streaming_api.repository.UserRepository;
 import com.adnakiwoch.platform.streaming_api.repository.VidRepo;
 import com.adnakiwoch.platform.streaming_api.repository.WatchRepo;
+import com.adnakiwoch.platform.streaming_api.service.internal.GoStreamingNodeService;
 import com.github.benmanes.caffeine.cache.Cache;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 
 @Service
 @Slf4j
@@ -24,7 +27,10 @@ public class WatchService {
   private final VidRepo vidRepo;
   private final UserRepository userRepository;
   private final WatchServiceUtil watchUtil;
+  private  final RestClient restClient;
   private final Cache<UUID, Double> cacheVidId;
+  private  final VidStoreService vidStoreService;
+  private  final GoStreamingNodeService goStreamingNodeService;
 
   public WatchService(
       WatchRepo watchRepo,
@@ -32,12 +38,18 @@ public class WatchService {
       UserRepository userRepository,
       WatchServiceUtil watchUtil,
       // has to be made in to redis cache as well
-      Cache<UUID, Double> cacheVidId) {
+      Cache<UUID, Double> cacheVidId,
+      VidStoreService vidStoreService,
+      RestClient restClient,
+      GoStreamingNodeService goStreamingNodeService) {
     this.watchRepo = watchRepo;
     this.vidRepo = vidRepo;
     this.userRepository = userRepository;
     this.watchUtil = watchUtil;
     this.cacheVidId = cacheVidId;
+    this.vidStoreService = vidStoreService;
+    this.goStreamingNodeService = goStreamingNodeService;
+    this.restClient = restClient;
   }
 
   public Double watchVidRequestHandler(UUID vidId, UUID userID) {
@@ -130,11 +142,48 @@ public class WatchService {
           return (0.0);
       }
 
+      UUID watchId =  watchOptional.get().getId();
+
+      // now we get the node assoitated with the vid
+
+      UUID nodeId = vidStoreService.getNodIdAssociatedWithVidId(vidId);
+
+      // will have to be moved to env var for now it is fine
+      String uriLocalDev =
+              "http://host.docker.internal:"
+                      + goStreamingNodeService.getPortAddr(nodeId)
+                      + "/stream/v1/current/frame?watchId="+watchId;
+
+
+      try {
+          ResponseEntity<CurrentFrameResponse> response =
+                  restClient
+                          .post()
+                          .uri(uriLocalDev) //
+                          .retrieve()
+                          .toEntity(CurrentFrameResponse.class);
+
+          if (response.getStatusCode()!=HttpStatus.OK){
+              throw new RuntimeException("node server responsed wiht illigal status code for checking cached current frame");
+          }
+
+          assert response.getBody() != null;
+
+
+         if (response.getBody().currentFrame()!=-1) {
+             return response.getBody().currentFrame();
+         }
+
+
+          }
+      catch (Exception exception){
+          throw exception;
+      }
 
 
 
 
-  }
+      }
 
 
 }
