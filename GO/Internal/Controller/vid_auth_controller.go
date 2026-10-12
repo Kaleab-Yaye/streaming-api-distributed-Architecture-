@@ -1,7 +1,9 @@
 package Controller
 
 import (
+	"GO/DTOs"
 	"GO/Internal/service"
+	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
@@ -36,5 +38,21 @@ func (vidAuthController *VidAuthController) vidAuthHandler(r *http.Request, w ht
 
 	}
 	w.WriteHeader(vidAuthController.vidAuthService.WatchAuthHandler(rawUri, accessToken, currentFrame))
+
+}
+
+func (vidAuthController *VidAuthController) doYouHaveWatchIdCachedHandler(r *http.Request, w http.ResponseWriter) {
+
+	watchId := r.URL.Query().Get("watchId")
+
+	currentFrameVar := vidAuthController.vidAuthService.DoYouHaveWatchInCacheHandler(watchId)
+
+	w.WriteHeader(http.StatusOK)
+
+	err := json.NewEncoder(w).Encode(DTOs.Current_Frame{CurrentFrame: currentFrameVar})
+
+	if err != nil {
+		http.Error(w, "failed to encode jason value", http.StatusInternalServerError)
+	}
 
 }

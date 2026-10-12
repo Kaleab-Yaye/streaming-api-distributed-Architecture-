@@ -75,7 +75,7 @@ func (vidAuthService *VidAuthService) WatchAuthHandler(rawUri string, accessToke
 
 }
 
-func (VidAuthService *VidAuthService) doYouHaveWatchInCacheHandler(watchId string) float64 {
+func (VidAuthService *VidAuthService) DoYouHaveWatchInCacheHandler(watchId string) float64 {
 
 	item := VidAuthService.currentFrameCache.Get(watchId)
 

@@ -64,4 +64,5 @@ func RegistNodeHandler(port_num string) (error, bool) {
 
 func HandelHealthCheck(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
+
 }

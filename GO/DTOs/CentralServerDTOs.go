@@ -1,5 +1,6 @@
 package DTOs
 
+// Request DTOs
 type Regist_node struct {
 	Ip_addr     string `json:"ip_addr"`
 	Port_number string `json:"port_number"`
@@ -7,5 +8,11 @@ type Regist_node struct {
 
 type SubmitCurrenFrameDTO struct {
 	WatchId      string  `json:"watchId"`
+	CurrentFrame float64 `json:"currentFrame"`
+}
+
+//Response DTOs
+
+type Current_Frame struct {
 	CurrentFrame float64 `json:"currentFrame"`
 }
