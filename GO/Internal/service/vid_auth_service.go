@@ -33,24 +33,39 @@ func (vidAuthService *VidAuthService) WatchAuthHandler(rawUri string, accessToke
 	vidLoc := SplittedUri[3]
 	key := vidLoc + ":" + accessToken
 
+	var storedWatchId string
+
+	element := vidAuthService.accessTokenToWatchIdCache.Get(key)
+
 	// now we check for its exitance
 
-	storedWatchId, err := vidAuthService.redisService.rdb.Get(vidAuthService.redisService.context, key).Result()
+	if element == nil {
 
-	if err == nil {
-		log.Default().Println("there was an issue wiht accesing the value")
-		log.Printf("the error is %s", err)
-		return http.StatusInternalServerError
+		var err error
+		storedWatchId, err = vidAuthService.redisService.rdb.Get(vidAuthService.redisService.context, key).Result()
+
+		if err == redis.Nil {
+			// remove this log for latter
+			log.Printf("a cache was not found for the key %s", key)
+			return http.StatusForbidden
+
+		}
+
+		if err != nil {
+			log.Default().Println("there was an issue wiht accesing the value")
+			log.Printf("the error is %s", err)
+			return http.StatusInternalServerError
+		}
+
+		vidAuthService.accessTokenToWatchIdCache.Set(key, storedWatchId, ttlcache.DefaultTTL)
+
+	} else {
+
+		storedWatchId = element.Value()
+
 	}
 
-	if err == redis.Nil {
-		// remove this log for latter
-		log.Printf("a cache was not found for the key %s", key)
-		return http.StatusForbidden
-
-	}
-
-	if strings.HasSuffix(rawUri, ".ts") {
+	if !strings.HasSuffix(rawUri, ".ts") {
 
 		vidAuthService.currentFrameCache.Set(storedWatchId, frameBeingRequest, ttlcache.DefaultTTL)
 
@@ -62,8 +77,14 @@ func (vidAuthService *VidAuthService) WatchAuthHandler(rawUri string, accessToke
 
 func (VidAuthService *VidAuthService) doYouHaveWatchInCacheHandler(watchId string) float64 {
 
+	item := VidAuthService.currentFrameCache.Get(watchId)
+
+	if item == nil {
+
+		return -1 // it litrally means i don't have it
+
+	}
+
+	return item.Value()
+
 }
-
-// the caching logic here ( which is going to be an asycn call)
-
-// the do you have a catch with this
