@@ -10,15 +10,17 @@ import (
 )
 
 type VidAuthService struct {
-	redisService      *RedisService
-	currentFrameCache *ttlcache.Cache[string, float64]
+	redisService              *RedisService
+	currentFrameCache         *ttlcache.Cache[string, float64]
+	accessTokenToWatchIdCache *ttlcache.Cache[string, string]
 }
 
-func NewVidAuthService(service *RedisService, currentFrameCache *ttlcache.Cache[string, float64]) *VidAuthService {
+func NewVidAuthService(service *RedisService, currentFrameCache *ttlcache.Cache[string, float64], accessTokenToWatchIdCache *ttlcache.Cache[string, string]) *VidAuthService {
 
 	return &VidAuthService{
-		redisService:      service,
-		currentFrameCache: currentFrameCache,
+		redisService:              service,
+		currentFrameCache:         currentFrameCache,
+		accessTokenToWatchIdCache: accessTokenToWatchIdCache,
 	}
 }
 
@@ -55,6 +57,10 @@ func (vidAuthService *VidAuthService) WatchAuthHandler(rawUri string, accessToke
 	}
 
 	return http.StatusOK
+
+}
+
+func (VidAuthService *VidAuthService) doYouHaveWatchInCacheHandler(watchId string) float64 {
 
 }
 

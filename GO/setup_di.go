@@ -23,8 +23,10 @@ func newAPP() *app {
 		Timeout: 10 * time.Second,
 	})
 
+	accessTokenToWatchIdCache := GetCacheForLayerAccessTokenToWatchId()
+
 	redisService := service.NewRedisService(contextBack, rdp)
-	vidAuthService := service.NewVidAuthService(redisService, currentFrameCache)
+	vidAuthService := service.NewVidAuthService(redisService, currentFrameCache, accessTokenToWatchIdCache)
 	vidAuthController := Controller.NewVidAuthController(vidAuthService)
 	return &app{
 		redisController: vidAuthController,

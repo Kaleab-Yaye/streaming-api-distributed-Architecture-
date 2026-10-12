@@ -64,3 +64,12 @@ func updateCurrentWatchFrame(watchId string, httpClient *http.Client, currentFra
 	}
 
 }
+
+func GetCacheForLayerAccessTokenToWatchId() *ttlcache.Cache[string, string] {
+
+	cache := ttlcache.New[string, string](
+		ttlcache.WithTTL[string, string](time.Minute * 5))
+
+	return cache
+
+}

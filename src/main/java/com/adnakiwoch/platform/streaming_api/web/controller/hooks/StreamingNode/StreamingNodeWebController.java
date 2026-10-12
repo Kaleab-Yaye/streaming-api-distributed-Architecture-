@@ -33,7 +33,7 @@ public class StreamingNodeWebController {
   }
 
 
-  @PostMapping("/submite/current/frame")
+  @PostMapping("/submit/current/frame")
 
    ResponseEntity<Void>  submiteCurrentFrameHandler (@RequestBody SubmitCurrentFrameRequest submitCurrentFrameRequest){
 

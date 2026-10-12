@@ -110,4 +110,31 @@ public class WatchService {
   }
 
 
+  public double watchVidRequestHandlerInTheMaking(UUID vidId, UUID userID){
+
+      Optional<Watch> watchOptional = watchRepo.findByVidIdAndUserId(vidId, userID);
+      if (watchOptional.isEmpty()) {
+          Vid vid = vidRepo.getReferenceById(vidId);
+          User user = userRepository.getReferenceById(userID);
+          Watch watch = new Watch();
+          watch.setVid(vid);
+          watch.setUser(user);
+          watch.setLiked(false);
+          watch.setTimesRewatch(0);
+          watch.setCurrentFrame(0.0);
+
+          watchRepo.save(watch);
+
+          log.info("saved the vid reqeust with the new ID:{}", watch.getId());
+
+          return (0.0);
+      }
+
+
+
+
+
+  }
+
+
 }
